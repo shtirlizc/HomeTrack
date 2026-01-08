@@ -14,8 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ИЖС Уфа",
-  description: "ИЖС Уфа",
+  title: "Админка - ИЖС Уфа",
 };
 
 export default function RootLayout({
