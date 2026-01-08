@@ -8,6 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { signOut } from "@/app/actions/auth";
 
 type Props = {
   trigger: ReactNode;
@@ -27,6 +28,7 @@ export const ProfileDropdown = ({
         <DropdownMenuItem
           variant="destructive"
           className="px-2 py-2 text-base cursor-pointer"
+          onClick={signOut}
         >
           <LogOutIcon className="size-3" />
           <span>Выйти</span>
