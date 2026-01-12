@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 
-import { ProfileDropdown } from "@/components/admin/dropdown-profile";
-import { Button } from "@/components/ui/button";
-import { ModeToggle } from "@/components/common/dark-mode/mode-toggle";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/admin/sidebar";
+import { SiteHeader } from "@/components/admin/header";
 
 export const metadata: Metadata = {
   title: "Админка - ИЖС Уфа",
@@ -14,25 +14,26 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <div>
-      <header className="bg-card sticky top-0 z-50 border-b flex items-center justify-between gap-6 px-4 py-2">
-        <a href="#">Logo</a>
+    <SidebarProvider
+      style={
+        {
+          "--sidebar-width": "calc(var(--spacing) * 64)",
+          "--header-height": "calc(var(--spacing) * 12)",
+        } as React.CSSProperties
+      }
+    >
+      <AppSidebar variant="inset" />
+      <SidebarInset>
+        <SiteHeader />
 
-        <div className="flex items-center gap-2">
-          <ModeToggle />
-          <ProfileDropdown
-            trigger={
-              <Button variant="ghost" className="cursor-pointer">
-                User Name
-              </Button>
-            }
-          />
+        <div className="flex flex-1 flex-col">
+          <div className="@container/main flex flex-1 flex-col gap-2">
+            <div className="flex flex-col gap-4 md:gap-6 md:py-6 px-2 py-2">
+              {children}
+            </div>
+          </div>
         </div>
-      </header>
-
-      <main className="px-4 py-2">{children}</main>
-
-      <footer className="bg-card h-10 border-t">ИЖС Уфа</footer>
-    </div>
+      </SidebarInset>
+    </SidebarProvider>
   );
 }

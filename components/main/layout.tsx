@@ -18,7 +18,9 @@ export default function MainLayout({
 
       <main className="px-4 py-2">{children}</main>
 
-      <footer className="bg-card h-10 border-t">ИЖС Уфа</footer>
+      <footer className="bg-card h-10 border-t px-4 py-2 text-center">
+        ИЖС Уфа
+      </footer>
     </>
   );
 }
