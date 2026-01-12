@@ -1,8 +1,9 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
+import { env } from "prisma/config";
 
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_PUBLISHABLE_DEFAULT_KEY;
+const supabaseUrl = env("SUPABASE_URL");
+const supabaseKey = env("SUPABASE_PUBLISHABLE_DEFAULT_KEY");
 
 export const createClient = async () => {
   const cookieStore = await cookies();
