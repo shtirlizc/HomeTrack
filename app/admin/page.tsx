@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
 
-export default function AdminPage() {
-  redirect("/admin/object");
+export default function DictPage() {
+  redirect("/admin/dict/district");
 }
