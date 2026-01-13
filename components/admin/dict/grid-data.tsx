@@ -68,7 +68,7 @@ export const DistrictsTable: FC<Props> = ({ districts }) => {
                 handleEdit(row.id);
               }}
             >
-              <Edit className="h-[1.2rem] w-[1.2rem] scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />
+              <Edit className="h-[1.2rem] w-[1.2rem]" />
               <span className="sr-only">Отредактировать</span>
             </Button>
             <Button
@@ -79,7 +79,7 @@ export const DistrictsTable: FC<Props> = ({ districts }) => {
                 handleDelete(row.original.id);
               }}
             >
-              <Trash2 className="h-[1.2rem] w-[1.2rem] scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />
+              <Trash2 className="h-[1.2rem] w-[1.2rem]" />
               <span className="sr-only">Удалить</span>
             </Button>
           </div>

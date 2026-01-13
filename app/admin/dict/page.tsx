@@ -1,3 +1,5 @@
+import { redirect } from "next/navigation";
+
 export default async function DictPage() {
-  return <div>123</div>;
+  redirect("/admin/dict/district");
 }
