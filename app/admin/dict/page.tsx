@@ -1,7 +1,5 @@
+import { DataTable } from "@/components/admin/dict/grid-data";
+
 export default function DictPage() {
-  return (
-    <div>
-      <h1>Dict page</h1>
-    </div>
-  );
+  return <DataTable />;
 }
