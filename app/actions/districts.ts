@@ -38,3 +38,26 @@ export async function addDistrict(prevData: any, formData: FormData) {
     return error?.message ?? "Неизвестная ошибка";
   }
 }
+
+export async function updateDistrict(district: District) {
+  if (!district.title.trim()) {
+    return { error: "Название обязательно" };
+  }
+
+  try {
+    await prisma.district.update({
+      where: {
+        id: district.id,
+      },
+      data: {
+        title: district.title,
+        description: district.description,
+      },
+    });
+
+    revalidatePath("/admin/dict/district");
+    return { success: true };
+  } catch (error: any) {
+    return error?.message ?? "Неизвестная ошибка";
+  }
+}

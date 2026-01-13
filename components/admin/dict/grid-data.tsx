@@ -21,10 +21,11 @@ import {
 } from "@/components/ui/table";
 import { District } from "@/lib/generated/prisma/client";
 import { FC, useActionState, useEffect, useRef } from "react";
-import { addDistrict } from "@/app/actions/districts";
+import { addDistrict, updateDistrict } from "@/app/actions/districts";
 import { FieldDescription } from "@/components/ui/field";
-import { Edit, Trash2 } from "lucide-react";
+import { Edit, Trash2, Save, Undo } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 const initialState = { error: "", success: false };
 
@@ -36,8 +37,27 @@ export const DistrictsTable: FC<Props> = ({ districts }) => {
   const [state, formAction] = useActionState(addDistrict, initialState);
   const formRef = useRef<HTMLFormElement>(null);
 
-  const handleEdit = (rowId: string) => {
-    console.log("#### edit", rowId);
+  const [editingId, setEditingId] = React.useState<string | null>(null);
+  const [editingValues, setEditingValues] = React.useState<District | null>(
+    null,
+  );
+
+  const handleEdit = (district: District) => {
+    setEditingId(district.id);
+    setEditingValues(district);
+  };
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setEditingValues(null);
+  };
+  const handleSaveEdit = async () => {
+    if (!editingValues) {
+      console.error("EditingValues is empty");
+      return null;
+    }
+
+    await updateDistrict(editingValues);
+    handleCancelEdit();
   };
 
   const handleDelete = (rowId: string) => {
@@ -48,16 +68,86 @@ export const DistrictsTable: FC<Props> = ({ districts }) => {
     {
       accessorKey: "title",
       header: "Название",
+      cell: ({ row }) => {
+        const original = row.original;
+        const isEditing = editingId === original.id;
+
+        if (!isEditing || !editingValues) return original.title;
+
+        return (
+          <Input
+            value={editingValues.title ?? ""}
+            onChange={(event) =>
+              setEditingValues((prev) => {
+                if (!prev) return null;
+
+                return { ...prev, title: event.target.value };
+              })
+            }
+          />
+        );
+      },
     },
     {
       accessorKey: "description",
       header: "Описание",
+      cell: ({ row }) => {
+        const original = row.original;
+        const isEditing = editingId === original.id;
+
+        if (!isEditing || !editingValues) return original.description;
+
+        return (
+          <Input
+            value={editingValues.description ?? ""}
+            onChange={(event) =>
+              setEditingValues((prev): District | null => {
+                if (!prev) return null;
+
+                return { ...prev, description: event.target.value };
+              })
+            }
+          />
+        );
+      },
     },
     {
       accessorKey: "_actions",
       header: "",
       size: 80,
       cell: ({ row }) => {
+        const original = row.original;
+        const isEditing = editingId === original.id;
+
+        if (!isEditing) {
+          return (
+            <div className="flex justify-end gap-2">
+              <Button
+                variant="outline"
+                size="icon"
+                className="cursor-pointer"
+                onClick={() => {
+                  handleEdit(row.original);
+                }}
+              >
+                <Edit className="h-[1.2rem] w-[1.2rem]" />
+                <span className="sr-only">Отредактировать</span>
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                className="cursor-pointer text-red-500"
+                onClick={() => {
+                  handleDelete(row.original.id);
+                }}
+              >
+                <Trash2 className="h-[1.2rem] w-[1.2rem]" />
+                <span className="sr-only">Удалить</span>
+              </Button>
+            </div>
+          );
+        }
+
         return (
           <div className="flex justify-end gap-2">
             <Button
@@ -65,22 +155,22 @@ export const DistrictsTable: FC<Props> = ({ districts }) => {
               size="icon"
               className="cursor-pointer"
               onClick={() => {
-                handleEdit(row.id);
+                handleCancelEdit();
               }}
             >
-              <Edit className="h-[1.2rem] w-[1.2rem]" />
-              <span className="sr-only">Отредактировать</span>
+              <Undo className="h-[1.2rem] w-[1.2rem]" />
+              <span className="sr-only">Отмена</span>
             </Button>
             <Button
               variant="outline"
               size="icon"
-              className="cursor-pointer text-red-500"
+              className="cursor-pointer "
               onClick={() => {
-                handleDelete(row.original.id);
+                handleSaveEdit();
               }}
             >
-              <Trash2 className="h-[1.2rem] w-[1.2rem]" />
-              <span className="sr-only">Удалить</span>
+              <Save className="h-[1.2rem] w-[1.2rem]" />
+              <span className="sr-only">Сохранить</span>
             </Button>
           </div>
         );
