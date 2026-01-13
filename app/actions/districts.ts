@@ -15,3 +15,26 @@ export async function getDistricts() {
     return null;
   }
 }
+
+export async function addDistrict(prevData: any, formData: FormData) {
+  const title = formData.get("title") as "string";
+  const description = formData.get("description") as "string";
+
+  if (!title.trim()) {
+    return { error: "Название обязательно" };
+  }
+
+  try {
+    await prisma.district.create({
+      data: {
+        title,
+        description,
+      },
+    });
+
+    revalidatePath("/admin/dict/district");
+    return { success: true };
+  } catch (error: any) {
+    return error?.message ?? "Неизвестная ошибка";
+  }
+}
