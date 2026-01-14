@@ -17,9 +17,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { District } from "@/lib/generated/prisma/client";
-import { FC, useActionState, useEffect, useRef, useTransition } from "react";
+import { FC, useActionState, useEffect, useTransition } from "react";
 import {
-  addDistrict,
+  createDistrict,
   deleteDistrict,
   updateDistrict,
 } from "@/app/actions/districts";
@@ -49,11 +49,10 @@ interface Props {
 }
 
 export const DistrictsTable: FC<Props> = ({ districts }) => {
-  const formRef = useRef<HTMLFormElement>(null);
   const [isPending, startTransition] = useTransition();
 
   const [createState, createFormAction] = useActionState(
-    addDistrict,
+    createDistrict,
     createInitialState,
   );
   const [updateState, updateFormAction] = useActionState(
@@ -68,9 +67,9 @@ export const DistrictsTable: FC<Props> = ({ districts }) => {
   const [isCreateMode, setIsCreateMode] = React.useState(false);
   const [creatingValues, setCreatingValues] =
     React.useState<DistrictCreateInput>(defaultCreateState);
-  const handleCreate = async (formData: FormData) => {
+  const handleCreate = async () => {
     startTransition(async () => {
-      createFormAction(formData);
+      createFormAction(creatingValues);
     });
   };
 
@@ -83,9 +82,13 @@ export const DistrictsTable: FC<Props> = ({ districts }) => {
   const handleCancelEdit = () => {
     setEditingValues(null);
   };
-  const handleSaveEdit = async (formData: FormData) => {
+  const handleSaveEdit = async () => {
     startTransition(async () => {
-      updateFormAction(formData);
+      if (!editingValues) {
+        console.error("EditingValues is not exists");
+        return;
+      }
+      updateFormAction(editingValues);
     });
   };
 
@@ -238,11 +241,7 @@ export const DistrictsTable: FC<Props> = ({ districts }) => {
         }}
       >
         <DialogContent className="sm:max-w-[425px]">
-          <form
-            ref={formRef}
-            action={handleCreate}
-            className="flex flex-col gap-4"
-          >
+          <form action={handleCreate} className="flex flex-col gap-4">
             <DialogHeader>
               <DialogTitle>Новый район</DialogTitle>
             </DialogHeader>
@@ -250,7 +249,6 @@ export const DistrictsTable: FC<Props> = ({ districts }) => {
               <div className="grid gap-3">
                 <Label>Название</Label>
                 <Input
-                  name="title"
                   value={creatingValues.title}
                   onChange={(event) => {
                     setCreatingValues((prev): DistrictCreateInput => {
@@ -262,7 +260,6 @@ export const DistrictsTable: FC<Props> = ({ districts }) => {
               <div className="grid gap-3">
                 <Label>Описание</Label>
                 <Input
-                  name="description"
                   value={creatingValues?.description || ""}
                   onChange={(event) => {
                     setCreatingValues((prev): DistrictCreateInput => {
@@ -309,7 +306,6 @@ export const DistrictsTable: FC<Props> = ({ districts }) => {
             </DialogHeader>
             <div className="grid gap-4">
               <Input
-                name="id"
                 type="hidden"
                 value={editingValues?.id || ""}
                 onChange={() => {}}
@@ -317,7 +313,6 @@ export const DistrictsTable: FC<Props> = ({ districts }) => {
               <div className="grid gap-3">
                 <Label>Название</Label>
                 <Input
-                  name="title"
                   value={editingValues?.title || ""}
                   onChange={(event) => {
                     setEditingValues((prev): District | null => {
@@ -330,7 +325,6 @@ export const DistrictsTable: FC<Props> = ({ districts }) => {
               <div className="grid gap-3">
                 <Label>Описание</Label>
                 <Input
-                  name="description"
                   value={editingValues?.description || ""}
                   onChange={(event) => {
                     setEditingValues((prev): District | null => {

@@ -2,16 +2,16 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
-import { District } from "@/lib/generated/prisma/client";
-import { DistrictCreateInput } from "@/lib/generated/prisma/models/District";
+import { Developer } from "@/lib/generated/prisma/client";
+import { DeveloperCreateInput } from "@/lib/generated/prisma/models/Developer";
 
-export async function getDistricts() {
+export async function getDevelopers() {
   try {
-    const districts: District[] = await prisma.district.findMany({
+    const developers: Developer[] = await prisma.developer.findMany({
       orderBy: { createdAt: "asc" },
     });
 
-    return districts;
+    return developers;
   } catch (error) {
     console.error(error);
 
@@ -19,33 +19,33 @@ export async function getDistricts() {
   }
 }
 
-export async function createDistrict(
+export async function addDeveloper(
   prevData: any,
-  request: DistrictCreateInput,
+  request: DeveloperCreateInput,
 ) {
-  const { title, description } = request;
+  const { title, link } = request;
 
   if (!title.trim()) {
     return { error: "Название обязательно" };
   }
 
   try {
-    await prisma.district.create({
+    await prisma.developer.create({
       data: {
         title,
-        description,
+        link,
       },
     });
 
-    revalidatePath("/admin/dict/district");
+    revalidatePath("/admin/dict/developer");
     return { success: true };
   } catch (error: any) {
     return error?.message ?? "Неизвестная ошибка";
   }
 }
 
-export async function updateDistrict(prevData: any, request: District) {
-  const { id, title, description } = request;
+export async function updateDeveloper(prevData: any, request: Developer) {
+  const { id, title, link } = request;
 
   if (!id) {
     return { error: "Идентификатор отсутствует" };
@@ -55,36 +55,36 @@ export async function updateDistrict(prevData: any, request: District) {
   }
 
   try {
-    await prisma.district.update({
+    await prisma.developer.update({
       where: {
         id,
       },
       data: {
         title,
-        description,
+        link,
       },
     });
 
-    revalidatePath("/admin/dict/district");
+    revalidatePath("/admin/dict/developer");
     return { success: true };
   } catch (error: any) {
     return error?.message ?? "Неизвестная ошибка";
   }
 }
 
-export async function deleteDistrict(prevData: any, id: string) {
+export async function deleteDeveloper(prevData: any, id: string) {
   if (!id) {
     return { error: "Идентификатор отсутствует" };
   }
 
   try {
-    await prisma.district.delete({
+    await prisma.developer.delete({
       where: {
         id,
       },
     });
 
-    revalidatePath("/admin/dict/district");
+    revalidatePath("/admin/dict/developer");
     return { success: true };
   } catch (error: any) {
     return error?.message ?? "Неизвестная ошибка";
