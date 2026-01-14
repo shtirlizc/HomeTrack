@@ -16,3 +16,29 @@ model District {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
+
+model Developer {
+  id        String   @id @default(uuid())
+  title     String
+  link      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Messenger {
+  id        String   @id @default(uuid())
+  link      String
+  label     String
+  isDefault Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Phone {
+  id        String   @id @default(uuid())
+  phone     String
+  label     String
+  isDefault Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
