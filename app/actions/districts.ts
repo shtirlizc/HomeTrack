@@ -39,19 +39,47 @@ export async function addDistrict(prevData: any, formData: FormData) {
   }
 }
 
-export async function updateDistrict(district: District) {
-  if (!district.title.trim()) {
+export async function updateDistrict(prevData: any, formData: FormData) {
+  const id = formData.get("id") as "string";
+  const title = formData.get("title") as "string";
+  const description = formData.get("description") as "string";
+
+  if (!id) {
+    return { error: "Идентификатор отсутствует" };
+  }
+  if (!title.trim()) {
     return { error: "Название обязательно" };
   }
 
   try {
     await prisma.district.update({
       where: {
-        id: district.id,
+        id,
       },
       data: {
-        title: district.title,
-        description: district.description,
+        title,
+        description,
+      },
+    });
+
+    revalidatePath("/admin/dict/district");
+    return { success: true };
+  } catch (error: any) {
+    return error?.message ?? "Неизвестная ошибка";
+  }
+}
+
+export async function deleteDistrict(prevData: any, formData: FormData) {
+  const id = formData.get("id") as "string";
+
+  if (!id) {
+    return { error: "Идентификатор отсутствует" };
+  }
+
+  try {
+    await prisma.district.delete({
+      where: {
+        id,
       },
     });
 

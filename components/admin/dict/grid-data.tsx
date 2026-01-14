@@ -4,9 +4,6 @@ import * as React from "react";
 import {
   flexRender,
   getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
   useReactTable,
   type ColumnDef,
 } from "@tanstack/react-table";
@@ -21,133 +18,82 @@ import {
 } from "@/components/ui/table";
 import { District } from "@/lib/generated/prisma/client";
 import { FC, useActionState, useEffect, useRef } from "react";
-import { addDistrict, updateDistrict } from "@/app/actions/districts";
+import {
+  addDistrict,
+  deleteDistrict,
+  updateDistrict,
+} from "@/app/actions/districts";
 import { FieldDescription } from "@/components/ui/field";
-import { Edit, Trash2, Save, Undo } from "lucide-react";
+import { Edit, Trash2, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { DistrictCreateInput } from "@/lib/generated/prisma/models/District";
 
-const initialState = { error: "", success: false };
+const defaultCreateState = { title: "", description: "" };
+const createInitialState = { error: "", success: false };
+const updateInitialState = { error: "", success: false };
+const deleteInitialState = { error: "" };
 
 interface Props {
   districts: District[];
 }
 
 export const DistrictsTable: FC<Props> = ({ districts }) => {
-  const [state, formAction] = useActionState(addDistrict, initialState);
   const formRef = useRef<HTMLFormElement>(null);
+  const [createState, createFormAction] = useActionState(
+    addDistrict,
+    createInitialState,
+  );
+  const [updateState, updateFormAction] = useActionState(
+    updateDistrict,
+    updateInitialState,
+  );
+  const [deleteState, deleteFormAction] = useActionState(
+    deleteDistrict,
+    deleteInitialState,
+  );
 
-  const [editingId, setEditingId] = React.useState<string | null>(null);
+  const [isCreateMode, setIsCreateMode] = React.useState(false);
+  const [creatingValues, setCreatingValues] =
+    React.useState<DistrictCreateInput>(defaultCreateState);
+
   const [editingValues, setEditingValues] = React.useState<District | null>(
     null,
   );
 
   const handleEdit = (district: District) => {
-    setEditingId(district.id);
     setEditingValues(district);
   };
   const handleCancelEdit = () => {
-    setEditingId(null);
     setEditingValues(null);
   };
-  const handleSaveEdit = async () => {
-    if (!editingValues) {
-      console.error("EditingValues is empty");
-      return null;
-    }
-
-    await updateDistrict(editingValues);
-    handleCancelEdit();
-  };
-
-  const handleDelete = (rowId: string) => {
-    console.log("#### delete", rowId);
+  const handleSaveEdit = async (formData: FormData) => {
+    updateFormAction(formData);
   };
 
   const columns: ColumnDef<District>[] = [
     {
       accessorKey: "title",
       header: "Название",
-      cell: ({ row }) => {
-        const original = row.original;
-        const isEditing = editingId === original.id;
-
-        if (!isEditing || !editingValues) return original.title;
-
-        return (
-          <Input
-            value={editingValues.title ?? ""}
-            onChange={(event) =>
-              setEditingValues((prev) => {
-                if (!prev) return null;
-
-                return { ...prev, title: event.target.value };
-              })
-            }
-          />
-        );
-      },
     },
     {
       accessorKey: "description",
       header: "Описание",
-      cell: ({ row }) => {
-        const original = row.original;
-        const isEditing = editingId === original.id;
-
-        if (!isEditing || !editingValues) return original.description;
-
-        return (
-          <Input
-            value={editingValues.description ?? ""}
-            onChange={(event) =>
-              setEditingValues((prev): District | null => {
-                if (!prev) return null;
-
-                return { ...prev, description: event.target.value };
-              })
-            }
-          />
-        );
-      },
     },
     {
       accessorKey: "_actions",
       header: "",
       size: 80,
       cell: ({ row }) => {
-        const original = row.original;
-        const isEditing = editingId === original.id;
-
-        if (!isEditing) {
-          return (
-            <div className="flex justify-end gap-2">
-              <Button
-                variant="outline"
-                size="icon"
-                className="cursor-pointer"
-                onClick={() => {
-                  handleEdit(row.original);
-                }}
-              >
-                <Edit className="h-[1.2rem] w-[1.2rem]" />
-                <span className="sr-only">Отредактировать</span>
-              </Button>
-              <Button
-                variant="outline"
-                size="icon"
-                className="cursor-pointer text-red-500"
-                onClick={() => {
-                  handleDelete(row.original.id);
-                }}
-              >
-                <Trash2 className="h-[1.2rem] w-[1.2rem]" />
-                <span className="sr-only">Удалить</span>
-              </Button>
-            </div>
-          );
-        }
-
         return (
           <div className="flex justify-end gap-2">
             <Button
@@ -155,23 +101,30 @@ export const DistrictsTable: FC<Props> = ({ districts }) => {
               size="icon"
               className="cursor-pointer"
               onClick={() => {
-                handleCancelEdit();
+                handleEdit(row.original);
               }}
             >
-              <Undo className="h-[1.2rem] w-[1.2rem]" />
-              <span className="sr-only">Отмена</span>
+              <Edit className="h-[1.2rem] w-[1.2rem]" />
+              <span className="sr-only">Отредактировать</span>
             </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              className="cursor-pointer "
-              onClick={() => {
-                handleSaveEdit();
-              }}
-            >
-              <Save className="h-[1.2rem] w-[1.2rem]" />
-              <span className="sr-only">Сохранить</span>
-            </Button>
+
+            <form action={deleteFormAction}>
+              <Input
+                type="hidden"
+                name="id"
+                value={row.original.id}
+                onChange={() => {}}
+              />
+              <Button
+                type="submit"
+                variant="outline"
+                size="icon"
+                className="cursor-pointer text-red-500"
+              >
+                <Trash2 className="h-[1.2rem] w-[1.2rem]" />
+                <span className="sr-only">Удалить</span>
+              </Button>
+            </form>
           </div>
         );
       },
@@ -181,19 +134,42 @@ export const DistrictsTable: FC<Props> = ({ districts }) => {
     data: districts,
     columns,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
   });
 
   useEffect(() => {
-    if (state.success) {
-      formRef.current?.reset();
+    if (createState.success) {
+      setIsCreateMode(false);
+      setCreatingValues(defaultCreateState);
     }
-  }, [state.success]);
+  }, [createState]);
+
+  useEffect(() => {
+    if (updateState.success) {
+      setEditingValues(null);
+    }
+  }, [updateState]);
 
   return (
     <div className="w-full">
+      <div className="flex items-center gap-4 mb-4">
+        <h3 className="text-xl font-semibold">Районы</h3>
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() => {
+            setIsCreateMode(true);
+          }}
+        >
+          <Plus className="h-[1.2rem] w-[1.2rem]" />
+        </Button>
+      </div>
+
+      {deleteState?.error && (
+        <FieldDescription className="text-center text-red-500 mb-4">
+          {deleteState.error}
+        </FieldDescription>
+      )}
+
       <div className="overflow-hidden rounded-md border">
         <Table>
           <TableHeader>
@@ -245,15 +221,125 @@ export const DistrictsTable: FC<Props> = ({ districts }) => {
         </Table>
       </div>
 
-      <form ref={formRef} action={formAction}>
-        <input type="text" name="title" style={{ border: "2px dashed red" }} />
-        <button type="submit">send</button>
-        {state.error && (
-          <FieldDescription className="text-center text-red-500">
-            {state.error}
-          </FieldDescription>
-        )}
-      </form>
+      <Dialog
+        open={isCreateMode}
+        onOpenChange={() => {
+          setIsCreateMode(false);
+        }}
+      >
+        <DialogContent className="sm:max-w-[425px]">
+          <form
+            ref={formRef}
+            action={createFormAction}
+            className="flex flex-col gap-4"
+          >
+            <DialogHeader>
+              <DialogTitle>Новый район</DialogTitle>
+            </DialogHeader>
+            <div className="grid gap-4">
+              <div className="grid gap-3">
+                <Label>Название</Label>
+                <Input
+                  name="title"
+                  value={creatingValues.title}
+                  onChange={(event) => {
+                    setCreatingValues((prev): DistrictCreateInput => {
+                      return { ...prev, title: event.target.value };
+                    });
+                  }}
+                />
+              </div>
+              <div className="grid gap-3">
+                <Label>Описание</Label>
+                <Input
+                  name="description"
+                  value={creatingValues?.description || ""}
+                  onChange={(event) => {
+                    setCreatingValues((prev): DistrictCreateInput => {
+                      return { ...prev, description: event.target.value };
+                    });
+                  }}
+                />
+              </div>
+              {createState?.error && (
+                <FieldDescription className="text-center text-red-500">
+                  {createState.error}
+                </FieldDescription>
+              )}
+            </div>
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button variant="outline" onClick={handleCancelEdit}>
+                  Отмена
+                </Button>
+              </DialogClose>
+              <Button type="submit">Создать</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={Boolean(editingValues)}
+        onOpenChange={() => {
+          setEditingValues(null);
+        }}
+      >
+        <DialogContent className="sm:max-w-[425px]">
+          <form action={handleSaveEdit} className="flex flex-col gap-4">
+            <DialogHeader>
+              <DialogTitle>Редактировать</DialogTitle>
+            </DialogHeader>
+            <div className="grid gap-4">
+              <Input
+                name="id"
+                type="hidden"
+                value={editingValues?.id || ""}
+                onChange={() => {}}
+              />
+              <div className="grid gap-3">
+                <Label>Название</Label>
+                <Input
+                  name="title"
+                  value={editingValues?.title || ""}
+                  onChange={(event) => {
+                    setEditingValues((prev): District | null => {
+                      if (!prev) return null;
+                      return { ...prev, title: event.target.value };
+                    });
+                  }}
+                />
+              </div>
+              <div className="grid gap-3">
+                <Label>Описание</Label>
+                <Input
+                  name="description"
+                  value={editingValues?.description || ""}
+                  onChange={(event) => {
+                    setEditingValues((prev): District | null => {
+                      if (!prev) return null;
+                      return { ...prev, description: event.target.value };
+                    });
+                  }}
+                />
+              </div>
+              {updateState?.error && (
+                <FieldDescription className="text-center text-red-500">
+                  {updateState.error}
+                </FieldDescription>
+              )}
+            </div>
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button variant="outline" onClick={handleCancelEdit}>
+                  Отмена
+                </Button>
+              </DialogClose>
+              <Button type="submit">Сохранить</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
