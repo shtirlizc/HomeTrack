@@ -54,9 +54,7 @@ export function LoginForm({
                 <Input id="password" type="password" name="password" required />
               </Field>
               <Field>
-                <Button type="submit" className="cursor-pointer">
-                  Войти
-                </Button>
+                <Button type="submit">Войти</Button>
                 {state.error && (
                   <FieldDescription className="text-center text-red-500">
                     {state.error}

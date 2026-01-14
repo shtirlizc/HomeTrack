@@ -114,7 +114,6 @@ export const DistrictsTable: FC<Props> = ({ districts }) => {
             <Button
               variant="outline"
               size="icon"
-              className="cursor-pointer"
               disabled={isPending}
               onClick={() => {
                 handleEdit(row.original);
@@ -127,7 +126,7 @@ export const DistrictsTable: FC<Props> = ({ districts }) => {
             <Button
               variant="outline"
               size="icon"
-              className="cursor-pointer text-red-500"
+              className="text-red-500"
               disabled={isPending}
               onClick={async () => {
                 await handleDelete(row.original.id);

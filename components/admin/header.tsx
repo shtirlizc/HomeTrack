@@ -11,11 +11,7 @@ export function SiteHeader() {
         <div className="flex items-center gap-2">
           <ModeToggle />
           <ProfileDropdown
-            trigger={
-              <Button variant="ghost" className="cursor-pointer">
-                User Name
-              </Button>
-            }
+            trigger={<Button variant="ghost">User Name</Button>}
           />
         </div>
       </div>
