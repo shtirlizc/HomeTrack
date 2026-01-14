@@ -6,7 +6,9 @@ import { District } from "@/lib/generated/prisma/client";
 
 export async function getDistricts() {
   try {
-    const districts: District[] = await prisma.district.findMany();
+    const districts: District[] = await prisma.district.findMany({
+      orderBy: { createdAt: "asc" },
+    });
 
     return districts;
   } catch (error) {
@@ -69,17 +71,15 @@ export async function updateDistrict(prevData: any, formData: FormData) {
   }
 }
 
-export async function deleteDistrict(prevData: any, formData: FormData) {
-  const id = formData.get("id") as "string";
-
-  if (!id) {
+export async function deleteDistrict(prevData: any, districtId: string) {
+  if (!districtId) {
     return { error: "Идентификатор отсутствует" };
   }
 
   try {
     await prisma.district.delete({
       where: {
-        id,
+        id: districtId,
       },
     });
 

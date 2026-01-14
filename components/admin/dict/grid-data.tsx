@@ -17,7 +17,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { District } from "@/lib/generated/prisma/client";
-import { FC, useActionState, useEffect, useRef } from "react";
+import { FC, useActionState, useEffect, useRef, useTransition } from "react";
 import {
   addDistrict,
   deleteDistrict,
@@ -37,6 +37,7 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { DistrictCreateInput } from "@/lib/generated/prisma/models/District";
+import { Spinner } from "@/components/ui/spinner";
 
 const defaultCreateState = { title: "", description: "" };
 const createInitialState = { error: "", success: false };
@@ -49,6 +50,8 @@ interface Props {
 
 export const DistrictsTable: FC<Props> = ({ districts }) => {
   const formRef = useRef<HTMLFormElement>(null);
+  const [isPending, startTransition] = useTransition();
+
   const [createState, createFormAction] = useActionState(
     addDistrict,
     createInitialState,
@@ -65,11 +68,15 @@ export const DistrictsTable: FC<Props> = ({ districts }) => {
   const [isCreateMode, setIsCreateMode] = React.useState(false);
   const [creatingValues, setCreatingValues] =
     React.useState<DistrictCreateInput>(defaultCreateState);
+  const handleCreate = async (formData: FormData) => {
+    startTransition(async () => {
+      createFormAction(formData);
+    });
+  };
 
   const [editingValues, setEditingValues] = React.useState<District | null>(
     null,
   );
-
   const handleEdit = (district: District) => {
     setEditingValues(district);
   };
@@ -77,7 +84,15 @@ export const DistrictsTable: FC<Props> = ({ districts }) => {
     setEditingValues(null);
   };
   const handleSaveEdit = async (formData: FormData) => {
-    updateFormAction(formData);
+    startTransition(async () => {
+      updateFormAction(formData);
+    });
+  };
+
+  const handleDelete = async (districtId: string) => {
+    startTransition(async () => {
+      deleteFormAction(districtId);
+    });
   };
 
   const columns: ColumnDef<District>[] = [
@@ -100,31 +115,27 @@ export const DistrictsTable: FC<Props> = ({ districts }) => {
               variant="outline"
               size="icon"
               className="cursor-pointer"
+              disabled={isPending}
               onClick={() => {
                 handleEdit(row.original);
               }}
             >
               <Edit className="h-[1.2rem] w-[1.2rem]" />
-              <span className="sr-only">Отредактировать</span>
+              <span className="sr-only">Редактировать</span>
             </Button>
 
-            <form action={deleteFormAction}>
-              <Input
-                type="hidden"
-                name="id"
-                value={row.original.id}
-                onChange={() => {}}
-              />
-              <Button
-                type="submit"
-                variant="outline"
-                size="icon"
-                className="cursor-pointer text-red-500"
-              >
-                <Trash2 className="h-[1.2rem] w-[1.2rem]" />
-                <span className="sr-only">Удалить</span>
-              </Button>
-            </form>
+            <Button
+              variant="outline"
+              size="icon"
+              className="cursor-pointer text-red-500"
+              disabled={isPending}
+              onClick={async () => {
+                await handleDelete(row.original.id);
+              }}
+            >
+              <Trash2 className="h-[1.2rem] w-[1.2rem]" />
+              <span className="sr-only">Удалить</span>
+            </Button>
           </div>
         );
       },
@@ -230,7 +241,7 @@ export const DistrictsTable: FC<Props> = ({ districts }) => {
         <DialogContent className="sm:max-w-[425px]">
           <form
             ref={formRef}
-            action={createFormAction}
+            action={handleCreate}
             className="flex flex-col gap-4"
           >
             <DialogHeader>
@@ -269,11 +280,18 @@ export const DistrictsTable: FC<Props> = ({ districts }) => {
             </div>
             <DialogFooter>
               <DialogClose asChild>
-                <Button variant="outline" onClick={handleCancelEdit}>
+                <Button
+                  variant="outline"
+                  disabled={isPending}
+                  onClick={handleCancelEdit}
+                >
                   Отмена
                 </Button>
               </DialogClose>
-              <Button type="submit">Создать</Button>
+              <Button type="submit" disabled={isPending}>
+                {isPending && <Spinner />}
+                Создать
+              </Button>
             </DialogFooter>
           </form>
         </DialogContent>
@@ -331,11 +349,18 @@ export const DistrictsTable: FC<Props> = ({ districts }) => {
             </div>
             <DialogFooter>
               <DialogClose asChild>
-                <Button variant="outline" onClick={handleCancelEdit}>
+                <Button
+                  variant="outline"
+                  disabled={isPending}
+                  onClick={handleCancelEdit}
+                >
                   Отмена
                 </Button>
               </DialogClose>
-              <Button type="submit">Сохранить</Button>
+              <Button type="submit" disabled={isPending}>
+                {isPending && <Spinner />}
+                Сохранить
+              </Button>
             </DialogFooter>
           </form>
         </DialogContent>
