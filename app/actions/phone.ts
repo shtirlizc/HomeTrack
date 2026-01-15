@@ -19,7 +19,7 @@ export async function getPhones() {
   }
 }
 
-export async function addPhone(prevData: any, request: PhoneCreateInput) {
+export async function createPhone(prevData: any, request: PhoneCreateInput) {
   const { phone, label, isDefault } = request;
 
   if (!phone.trim()) {

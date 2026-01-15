@@ -16,83 +16,83 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { District } from "@/lib/generated/prisma/client";
+import { Developer } from "@/lib/generated/prisma/client";
 import { FC, useActionState, useEffect, useTransition } from "react";
 import {
-  createDistrict,
-  deleteDistrict,
-  updateDistrict,
-} from "@/app/actions/districts";
+  createDeveloper,
+  deleteDeveloper,
+  updateDeveloper,
+} from "@/app/actions/developers";
 import { FieldDescription } from "@/components/ui/field";
 import { Edit, Trash2, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { DistrictCreateInput } from "@/lib/generated/prisma/models/District";
-import { DistrictForm } from "./form";
+import { DeveloperCreateInput } from "@/lib/generated/prisma/models/Developer";
+import { DeveloperForm } from "./form";
 
-const defaultCreateState = { title: "", description: "" };
+const defaultCreateState = { title: "", link: "" };
 const createInitialState = { error: "", success: false };
 const updateInitialState = { error: "", success: false };
 const deleteInitialState = { error: "" };
 
 interface Props {
-  districts: District[];
+  developers: Developer[];
 }
 
-export const DistrictsTable: FC<Props> = ({ districts }) => {
+export const DevelopersTable: FC<Props> = ({ developers }) => {
   const [isPending, startTransition] = useTransition();
 
   const [createState, createFormAction] = useActionState(
-    createDistrict,
+    createDeveloper,
     createInitialState,
   );
   const [updateState, updateFormAction] = useActionState(
-    updateDistrict,
+    updateDeveloper,
     updateInitialState,
   );
   const [deleteState, deleteFormAction] = useActionState(
-    deleteDistrict,
+    deleteDeveloper,
     deleteInitialState,
   );
 
   const [isCreateMode, setIsCreateMode] = React.useState(false);
   const [creatingValues, setCreatingValues] =
-    React.useState<DistrictCreateInput>(defaultCreateState);
-  const handleCreate = async (data: DistrictCreateInput) => {
+    React.useState<DeveloperCreateInput>(defaultCreateState);
+  const handleCreate = async (data: DeveloperCreateInput) => {
     startTransition(async () => {
       createFormAction(data);
     });
   };
 
-  const [editingValues, setEditingValues] = React.useState<District | null>(
+  const [editingValues, setEditingValues] = React.useState<Developer | null>(
     null,
   );
-  const handleEdit = (district: District) => {
-    setEditingValues(district);
+  const handleEdit = (developer: Developer) => {
+    setEditingValues(developer);
   };
   const handleCancelEdit = () => {
     setEditingValues(null);
   };
-  const handleSaveEdit = async (district: DistrictCreateInput) => {
+  const handleSaveEdit = async (developer: DeveloperCreateInput) => {
     startTransition(async () => {
-      updateFormAction(district);
+      updateFormAction(developer);
     });
   };
 
-  const handleDelete = async (districtId: string) => {
+  const handleDelete = async (developerId: string) => {
     startTransition(async () => {
-      deleteFormAction(districtId);
+      deleteFormAction(developerId);
     });
   };
 
-  const columns: ColumnDef<District>[] = [
+  const columns: ColumnDef<Developer>[] = [
     {
       accessorKey: "title",
       header: "Название",
     },
     {
-      accessorKey: "description",
-      header: "Описание",
+      accessorKey: "link",
+      header: "Ссылка",
     },
     {
       accessorKey: "_actions",
@@ -131,7 +131,7 @@ export const DistrictsTable: FC<Props> = ({ districts }) => {
     },
   ];
   const table = useReactTable({
-    data: districts,
+    data: developers,
     columns,
     getCoreRowModel: getCoreRowModel(),
   });
@@ -152,7 +152,7 @@ export const DistrictsTable: FC<Props> = ({ districts }) => {
   return (
     <div className="w-full">
       <div className="flex items-center gap-4 mb-4">
-        <h3 className="text-xl font-semibold">Районы</h3>
+        <h3 className="text-xl font-semibold">Застройщики</h3>
         <Button
           variant="outline"
           size="icon"
@@ -229,9 +229,9 @@ export const DistrictsTable: FC<Props> = ({ districts }) => {
       >
         <DialogContent className="sm:max-w-[425px]">
           {creatingValues && (
-            <DistrictForm
+            <DeveloperForm
               formTitle="Новый район"
-              district={creatingValues}
+              developer={creatingValues}
               isPending={isPending}
               errorMessage={createState?.error}
               onCancel={handleCancelEdit}
@@ -249,9 +249,9 @@ export const DistrictsTable: FC<Props> = ({ districts }) => {
       >
         <DialogContent className="sm:max-w-[425px]">
           {editingValues && (
-            <DistrictForm
+            <DeveloperForm
               formTitle="Редактировать"
-              district={editingValues}
+              developer={editingValues}
               isPending={isPending}
               errorMessage={updateState?.error}
               onCancel={handleCancelEdit}

@@ -19,7 +19,7 @@ export async function getMessengers() {
   }
 }
 
-export async function addMessenger(
+export async function createMessenger(
   prevData: any,
   request: MessengerCreateInput,
 ) {

@@ -19,7 +19,7 @@ export async function getDevelopers() {
   }
 }
 
-export async function addDeveloper(
+export async function createDeveloper(
   prevData: any,
   request: DeveloperCreateInput,
 ) {
@@ -44,7 +44,10 @@ export async function addDeveloper(
   }
 }
 
-export async function updateDeveloper(prevData: any, request: Developer) {
+export async function updateDeveloper(
+  prevData: any,
+  request: DeveloperCreateInput,
+) {
   const { id, title, link } = request;
 
   if (!id) {
