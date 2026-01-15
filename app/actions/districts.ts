@@ -44,7 +44,10 @@ export async function createDistrict(
   }
 }
 
-export async function updateDistrict(prevData: any, request: District) {
+export async function updateDistrict(
+  prevData: any,
+  request: DistrictCreateInput,
+) {
   const { id, title, description } = request;
 
   if (!id) {

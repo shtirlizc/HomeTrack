@@ -26,18 +26,9 @@ import {
 import { FieldDescription } from "@/components/ui/field";
 import { Edit, Trash2, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { DistrictCreateInput } from "@/lib/generated/prisma/models/District";
-import { Spinner } from "@/components/ui/spinner";
+import { DistrictForm } from "@/components/admin/dict/district/form";
 
 const defaultCreateState = { title: "", description: "" };
 const createInitialState = { error: "", success: false };
@@ -67,9 +58,9 @@ export const DistrictsTable: FC<Props> = ({ districts }) => {
   const [isCreateMode, setIsCreateMode] = React.useState(false);
   const [creatingValues, setCreatingValues] =
     React.useState<DistrictCreateInput>(defaultCreateState);
-  const handleCreate = async () => {
+  const handleCreate = async (data: DistrictCreateInput) => {
     startTransition(async () => {
-      createFormAction(creatingValues);
+      createFormAction(data);
     });
   };
 
@@ -82,13 +73,9 @@ export const DistrictsTable: FC<Props> = ({ districts }) => {
   const handleCancelEdit = () => {
     setEditingValues(null);
   };
-  const handleSaveEdit = async () => {
+  const handleSaveEdit = async (district: DistrictCreateInput) => {
     startTransition(async () => {
-      if (!editingValues) {
-        console.error("EditingValues is not exists");
-        return;
-      }
-      updateFormAction(editingValues);
+      updateFormAction(district);
     });
   };
 
@@ -226,7 +213,7 @@ export const DistrictsTable: FC<Props> = ({ districts }) => {
                   colSpan={columns.length}
                   className="h-24 text-center"
                 >
-                  No results.
+                  Нет данных
                 </TableCell>
               </TableRow>
             )}
@@ -241,55 +228,16 @@ export const DistrictsTable: FC<Props> = ({ districts }) => {
         }}
       >
         <DialogContent className="sm:max-w-[425px]">
-          <form action={handleCreate} className="flex flex-col gap-4">
-            <DialogHeader>
-              <DialogTitle>Новый район</DialogTitle>
-            </DialogHeader>
-            <div className="grid gap-4">
-              <div className="grid gap-3">
-                <Label>Название</Label>
-                <Input
-                  value={creatingValues.title}
-                  onChange={(event) => {
-                    setCreatingValues((prev): DistrictCreateInput => {
-                      return { ...prev, title: event.target.value };
-                    });
-                  }}
-                />
-              </div>
-              <div className="grid gap-3">
-                <Label>Описание</Label>
-                <Input
-                  value={creatingValues?.description || ""}
-                  onChange={(event) => {
-                    setCreatingValues((prev): DistrictCreateInput => {
-                      return { ...prev, description: event.target.value };
-                    });
-                  }}
-                />
-              </div>
-              {createState?.error && (
-                <FieldDescription className="text-center text-red-500">
-                  {createState.error}
-                </FieldDescription>
-              )}
-            </div>
-            <DialogFooter>
-              <DialogClose asChild>
-                <Button
-                  variant="outline"
-                  disabled={isPending}
-                  onClick={handleCancelEdit}
-                >
-                  Отмена
-                </Button>
-              </DialogClose>
-              <Button type="submit" disabled={isPending}>
-                {isPending && <Spinner />}
-                Создать
-              </Button>
-            </DialogFooter>
-          </form>
+          {creatingValues && (
+            <DistrictForm
+              formTitle="Новый район"
+              district={creatingValues}
+              isPending={isPending}
+              errorMessage={createState?.error}
+              onCancel={handleCancelEdit}
+              onSave={handleCreate}
+            />
+          )}
         </DialogContent>
       </Dialog>
 
@@ -300,62 +248,16 @@ export const DistrictsTable: FC<Props> = ({ districts }) => {
         }}
       >
         <DialogContent className="sm:max-w-[425px]">
-          <form action={handleSaveEdit} className="flex flex-col gap-4">
-            <DialogHeader>
-              <DialogTitle>Редактировать</DialogTitle>
-            </DialogHeader>
-            <div className="grid gap-4">
-              <Input
-                type="hidden"
-                value={editingValues?.id || ""}
-                onChange={() => {}}
-              />
-              <div className="grid gap-3">
-                <Label>Название</Label>
-                <Input
-                  value={editingValues?.title || ""}
-                  onChange={(event) => {
-                    setEditingValues((prev): District | null => {
-                      if (!prev) return null;
-                      return { ...prev, title: event.target.value };
-                    });
-                  }}
-                />
-              </div>
-              <div className="grid gap-3">
-                <Label>Описание</Label>
-                <Input
-                  value={editingValues?.description || ""}
-                  onChange={(event) => {
-                    setEditingValues((prev): District | null => {
-                      if (!prev) return null;
-                      return { ...prev, description: event.target.value };
-                    });
-                  }}
-                />
-              </div>
-              {updateState?.error && (
-                <FieldDescription className="text-center text-red-500">
-                  {updateState.error}
-                </FieldDescription>
-              )}
-            </div>
-            <DialogFooter>
-              <DialogClose asChild>
-                <Button
-                  variant="outline"
-                  disabled={isPending}
-                  onClick={handleCancelEdit}
-                >
-                  Отмена
-                </Button>
-              </DialogClose>
-              <Button type="submit" disabled={isPending}>
-                {isPending && <Spinner />}
-                Сохранить
-              </Button>
-            </DialogFooter>
-          </form>
+          {editingValues && (
+            <DistrictForm
+              formTitle="Редактировать"
+              district={editingValues}
+              isPending={isPending}
+              errorMessage={updateState?.error}
+              onCancel={handleCancelEdit}
+              onSave={handleSaveEdit}
+            />
+          )}
         </DialogContent>
       </Dialog>
     </div>

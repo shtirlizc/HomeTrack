@@ -1,7 +1,7 @@
 "use server";
 
 import { getDistricts } from "@/app/actions/districts";
-import { DistrictsTable } from "@/components/admin/dict/grid-data";
+import { DistrictsTable } from "@/components/admin/dict/district/grid-data";
 
 export default async function DistrictPage() {
   const districts = await getDistricts();
