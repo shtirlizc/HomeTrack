@@ -15,6 +15,8 @@ model District {
   description String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  House House[]
 }
 
 model Developer {
@@ -23,6 +25,8 @@ model Developer {
   link      String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  House House[]
 }
 
 model Messenger {
@@ -32,6 +36,18 @@ model Messenger {
   isDefault Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  houseMessengers HouseMessenger[]
+}
+
+model HouseMessenger {
+  id          String    @id @default(uuid())
+  houseId     String
+  messengerId String
+  house       House     @relation(fields: [houseId], references: [id])
+  messenger   Messenger @relation(fields: [messengerId], references: [id])
+
+  @@unique([houseId, messengerId])
 }
 
 model Phone {
@@ -41,4 +57,138 @@ model Phone {
   isDefault Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  housePhones HousePhone[]
+}
+
+model HousePhone {
+  id      String @id @default(uuid())
+  houseId String
+  phoneId String
+  house   House  @relation(fields: [houseId], references: [id])
+  phone   Phone  @relation(fields: [phoneId], references: [id])
+
+  @@unique([houseId, phoneId])
+}
+
+enum HouseType {
+  LandPlot
+  Developer
+  Secondary
+  Commercial
+}
+
+enum LandCategory {
+  IZHS
+  SNT
+  DNT
+  Agricultural
+  Other
+}
+
+enum Finishing {
+  CleanFinish
+  PreCleanFinish
+  RoughFinish
+}
+
+enum Heating {
+  Gas
+  Electricity
+  Other
+}
+
+enum FloorCount {
+  One
+  Two
+  Three
+}
+
+enum BedroomCount {
+  One
+  Two
+  Three
+  Four
+  Five
+}
+
+enum BathroomCount {
+  One
+  Two
+  More
+}
+
+enum FacingMaterial {
+  BarkBeetlePlaster
+  Brick
+  Siding
+  Other
+}
+
+enum WallMaterial {
+  Wood
+  Brick
+  ExpandedClay
+  AeratedConcrete
+  Other
+}
+
+enum Insulation {
+  FoamPlastic
+  MineralWool
+  Other
+}
+
+enum HouseStatus {
+  BuiltHouse
+  UnderConstruction
+  LandPlot
+}
+
+enum SaleStatus {
+  Available
+  Reserved
+  Sold
+}
+
+model House {
+  id                     String          @id @default(uuid())
+  name                   String
+  description            String?
+  type                   HouseType
+  price                  Float
+  houseArea              Float
+  plotArea               Float
+  landCategory           LandCategory
+  finishing              Finishing
+  heating                Heating
+  asphaltToHouse         Boolean
+  closedComplex          Boolean
+  floor                  FloorCount
+  bedroom                BedroomCount
+  separatedKitchenLiving Boolean
+  bathroom               BathroomCount
+  facingMaterial         FacingMaterial?
+  wallMaterial           WallMaterial
+  insulation             Insulation?
+  hasMinimumDownPayment  Boolean
+  houseStatus            HouseStatus
+  saleStatus             SaleStatus
+
+  latitude        Float
+  longitude       Float
+  cadastralNumber String?
+  yandexDiskLink  String?
+  isActive        Boolean
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  district   District @relation(fields: [districtId], references: [id])
+  districtId String
+
+  developer   Developer @relation(fields: [developerId], references: [id])
+  developerId String
+
+  messengers HouseMessenger[]
+  phones     HousePhone[]
 }
