@@ -30,7 +30,7 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { DistrictCreateInput } from "@/lib/generated/prisma/models/District";
 import { DistrictForm } from "./form";
 
-const defaultCreateState = { title: "", description: "" };
+const defaultCreateState: DistrictCreateInput = { title: "", description: "" };
 const createInitialState = { error: "", success: false };
 const updateInitialState = { error: "", success: false };
 const deleteInitialState = { error: "" };
@@ -234,7 +234,9 @@ export const DistrictsTable: FC<Props> = ({ districts }) => {
               district={creatingValues}
               isPending={isPending}
               errorMessage={createState?.error}
-              onCancel={handleCancelEdit}
+              onCancel={() => {
+                setIsCreateMode(false);
+              }}
               onSave={handleCreate}
             />
           )}

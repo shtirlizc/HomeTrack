@@ -48,7 +48,10 @@ export async function createMessenger(
   }
 }
 
-export async function updateMessenger(prevData: any, request: Messenger) {
+export async function updateMessenger(
+  prevData: any,
+  request: MessengerCreateInput,
+) {
   const { id, link, label, isDefault } = request;
 
   if (!id) {

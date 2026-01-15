@@ -16,83 +16,97 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Developer } from "@/lib/generated/prisma/client";
+import { Messenger } from "@/lib/generated/prisma/client";
 import { FC, useActionState, useEffect, useTransition } from "react";
 import {
-  createDeveloper,
-  deleteDeveloper,
-  updateDeveloper,
-} from "@/app/actions/developers";
+  createMessenger,
+  deleteMessenger,
+  updateMessenger,
+} from "@/app/actions/messenger";
 import { FieldDescription } from "@/components/ui/field";
 import { Edit, Trash2, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { DeveloperCreateInput } from "@/lib/generated/prisma/models/Developer";
-import { DeveloperForm } from "./form";
+import { MessengerCreateInput } from "@/lib/generated/prisma/models/Messenger";
+import { MessengerForm } from "./form";
+import { Switch } from "@/components/ui/switch";
 
-const defaultCreateState: DeveloperCreateInput = { title: "", link: "" };
+const defaultCreateState: MessengerCreateInput = {
+  link: "",
+  label: "",
+  isDefault: false,
+};
 const createInitialState = { error: "", success: false };
 const updateInitialState = { error: "", success: false };
 const deleteInitialState = { error: "" };
 
 interface Props {
-  developers: Developer[];
+  messengers: Messenger[];
 }
 
-export const DevelopersTable: FC<Props> = ({ developers }) => {
+export const MessengersTable: FC<Props> = ({ messengers }) => {
   const [isPending, startTransition] = useTransition();
 
   const [createState, createFormAction] = useActionState(
-    createDeveloper,
+    createMessenger,
     createInitialState,
   );
   const [updateState, updateFormAction] = useActionState(
-    updateDeveloper,
+    updateMessenger,
     updateInitialState,
   );
   const [deleteState, deleteFormAction] = useActionState(
-    deleteDeveloper,
+    deleteMessenger,
     deleteInitialState,
   );
 
   const [isCreateMode, setIsCreateMode] = React.useState(false);
   const [creatingValues, setCreatingValues] =
-    React.useState<DeveloperCreateInput>(defaultCreateState);
-  const handleCreate = async (data: DeveloperCreateInput) => {
+    React.useState<MessengerCreateInput>(defaultCreateState);
+  const handleCreate = async (data: MessengerCreateInput) => {
     startTransition(async () => {
       createFormAction(data);
     });
   };
 
-  const [editingValues, setEditingValues] = React.useState<Developer | null>(
+  const [editingValues, setEditingValues] = React.useState<Messenger | null>(
     null,
   );
-  const handleEdit = (developer: Developer) => {
-    setEditingValues(developer);
+  const handleEdit = (messenger: Messenger) => {
+    setEditingValues(messenger);
   };
   const handleCancelEdit = () => {
     setEditingValues(null);
   };
-  const handleSaveEdit = async (developer: DeveloperCreateInput) => {
+  const handleSaveEdit = async (messenger: MessengerCreateInput) => {
     startTransition(async () => {
-      updateFormAction(developer);
+      updateFormAction(messenger);
     });
   };
 
-  const handleDelete = async (developerId: string) => {
+  const handleDelete = async (messengerId: string) => {
     startTransition(async () => {
-      deleteFormAction(developerId);
+      deleteFormAction(messengerId);
     });
   };
 
-  const columns: ColumnDef<Developer>[] = [
-    {
-      accessorKey: "title",
-      header: "Название",
-    },
+  const columns: ColumnDef<Messenger>[] = [
     {
       accessorKey: "link",
       header: "Ссылка",
+    },
+    {
+      accessorKey: "label",
+      header: "Описание",
+    },
+    {
+      accessorKey: "isDefault",
+      header: "По умолчанию",
+      cell: ({ row }) => {
+        const id = `is-default-${row.id}`;
+
+        return <Switch id={id} checked={row.original.isDefault} disabled />;
+      },
     },
     {
       accessorKey: "_actions",
@@ -131,7 +145,7 @@ export const DevelopersTable: FC<Props> = ({ developers }) => {
     },
   ];
   const table = useReactTable({
-    data: developers,
+    data: messengers,
     columns,
     getCoreRowModel: getCoreRowModel(),
   });
@@ -152,7 +166,7 @@ export const DevelopersTable: FC<Props> = ({ developers }) => {
   return (
     <div className="w-full">
       <div className="flex items-center gap-4 mb-4">
-        <h3 className="text-xl font-semibold">Застройщики</h3>
+        <h3 className="text-xl font-semibold">Мессенджеры</h3>
         <Button
           variant="outline"
           size="icon"
@@ -229,14 +243,12 @@ export const DevelopersTable: FC<Props> = ({ developers }) => {
       >
         <DialogContent className="sm:max-w-[425px]">
           {creatingValues && (
-            <DeveloperForm
-              formTitle="Новый застройщик"
-              developer={creatingValues}
+            <MessengerForm
+              formTitle="Новый мессенджер"
+              messenger={creatingValues}
               isPending={isPending}
               errorMessage={createState?.error}
-              onCancel={() => {
-                setIsCreateMode(false);
-              }}
+              onCancel={handleCancelEdit}
               onSave={handleCreate}
             />
           )}
@@ -251,9 +263,9 @@ export const DevelopersTable: FC<Props> = ({ developers }) => {
       >
         <DialogContent className="sm:max-w-[425px]">
           {editingValues && (
-            <DeveloperForm
+            <MessengerForm
               formTitle="Редактировать"
-              developer={editingValues}
+              messenger={editingValues}
               isPending={isPending}
               errorMessage={updateState?.error}
               onCancel={handleCancelEdit}
