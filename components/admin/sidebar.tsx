@@ -7,7 +7,6 @@ import {
   SidebarContent,
   SidebarHeader,
   SidebarMenu,
-  SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { NavMain } from "@/components/admin/nav-main";
@@ -31,12 +30,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton
-              asChild
-              className="data-[slot=sidebar-menu-button]:p-1.5!"
-            >
-              <span className="text-base font-semibold">ИЖС Уфа</span>
-            </SidebarMenuButton>
+            <span className="text-base font-semibold px-1.5 block">
+              ИЖС Уфа
+            </span>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>

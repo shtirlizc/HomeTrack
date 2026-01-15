@@ -30,3 +30,9 @@ export async function signOut() {
   revalidatePath("/login");
   redirect("/login");
 }
+
+export async function getUser() {
+  const supabase = await createClient();
+
+  return supabase.auth.getUser();
+}

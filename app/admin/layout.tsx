@@ -3,16 +3,19 @@ import type { Metadata } from "next";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/admin/sidebar";
 import { SiteHeader } from "@/components/admin/header";
+import { getUser } from "@/app/actions/auth";
 
 export const metadata: Metadata = {
   title: "Админка - ИЖС Уфа",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const user = await getUser();
+
   return (
     <SidebarProvider
       style={
@@ -24,7 +27,7 @@ export default function RootLayout({
     >
       <AppSidebar variant="inset" />
       <SidebarInset>
-        <SiteHeader />
+        <SiteHeader userEmail={user.data.user?.email ?? "Почта пользователя"} />
 
         <div className="flex flex-1 flex-col">
           <div className="@container/main flex flex-1 flex-col gap-2">

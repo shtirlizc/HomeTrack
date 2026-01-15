@@ -9,7 +9,7 @@ export default async function RootLayout({
     <div>
       <NavMenu />
 
-      <div className="flex flex-col gap-4 md:gap-6 md:py-6 px-2 py-2">
+      <div className="flex flex-col gap-4 md:gap-6 md:py-6 px-4 py-2">
         {children}
       </div>
     </div>

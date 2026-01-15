@@ -18,9 +18,8 @@ export function NavMain({
   }[];
 }) {
   const pathname = usePathname();
-
-  const currentPageName = pathname.split("/");
-  currentPageName.length = 3;
+  const pathSegments = pathname.split("/").slice(0, 3); // Берём сегменты 1-3, игнорируя пустые
+  const currentPageName = pathSegments.join("/");
 
   return (
     <SidebarGroup>
@@ -29,7 +28,7 @@ export function NavMain({
           {items.map(({ title, url }) => (
             <Link href={url} key={url} className="cursor-pointer">
               <SidebarMenuItem
-                className={`p-1 ${currentPageName.join("/") === url && "text-primary"}`}
+                className={`p-1 ${currentPageName === url && "text-primary"}`}
               >
                 <span>{title}</span>
               </SidebarMenuItem>
