@@ -45,7 +45,7 @@ export async function createPhone(prevData: any, request: PhoneCreateInput) {
   }
 }
 
-export async function updatePhone(prevData: any, request: Phone) {
+export async function updatePhone(prevData: any, request: PhoneCreateInput) {
   const { id, phone, label, isDefault } = request;
 
   if (!id) {
