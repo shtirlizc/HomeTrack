@@ -1,7 +1,14 @@
+"use server";
+
 import { House } from "@/lib/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
-import { HouseCreateInput } from "@/lib/generated/prisma/models/House";
 import { revalidatePath } from "next/cache";
+
+export type HouseInput = Omit<House, "id" | "createdAt" | "updatedAt"> & {
+  id?: string;
+  messengers: string[];
+  phones: string[];
+};
 
 export async function getHouses() {
   try {
@@ -17,16 +24,18 @@ export async function getHouses() {
   }
 }
 
-export async function createHouse(prevData: any, request: HouseCreateInput) {
+export async function createHouse(prevData: any, request: HouseInput) {
   const validateMessage = validateHouse(request);
   if (validateMessage) {
     return validateMessage;
   }
 
+  console.log("###: create", request);
+
   try {
-    await prisma.house.create({
-      data: request,
-    });
+    // await prisma.house.create({
+    //   data: request,
+    // });
 
     revalidatePath("/admin/houses");
     return { success: true };
@@ -35,7 +44,7 @@ export async function createHouse(prevData: any, request: HouseCreateInput) {
   }
 }
 
-export async function updateHouse(prevData: any, request: HouseCreateInput) {
+export async function updateHouse(prevData: any, request: HouseInput) {
   if (!request.id) {
     return { error: "Идентификатор отсутствует" };
   }
@@ -45,11 +54,13 @@ export async function updateHouse(prevData: any, request: HouseCreateInput) {
     return validateMessage;
   }
 
+  console.log("###: update", request);
+
   try {
-    await prisma.house.update({
-      where: { id: request.id },
-      data: request,
-    });
+    // await prisma.house.update({
+    //   where: { id: request.id },
+    //   data: request
+    // });
 
     revalidatePath("/admin/houses");
     return { success: true };
@@ -77,7 +88,7 @@ export async function deleteHouse(prevData: any, id: string) {
   }
 }
 
-function validateHouse(house: HouseCreateInput) {
+function validateHouse(house: HouseInput) {
   const {
     name,
     type,
@@ -146,4 +157,6 @@ function validateHouse(house: HouseCreateInput) {
   if (!String(longitude).trim()) {
     return { error: "Долгота обязательна" };
   }
+
+  return null;
 }

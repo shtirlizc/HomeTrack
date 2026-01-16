@@ -15,7 +15,7 @@ const data = {
   navMain: [
     {
       title: "Объекты",
-      url: "/admin/object",
+      url: "/admin/houses",
     },
     {
       title: "Справочники",
