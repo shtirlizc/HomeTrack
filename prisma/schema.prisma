@@ -162,16 +162,16 @@ model House {
   landCategory           LandCategory
   finishing              Finishing
   heating                Heating
-  asphaltToHouse         Boolean
-  closedComplex          Boolean
+  asphaltToHouse         Boolean         @default(false)
+  closedComplex          Boolean         @default(false)
   floor                  FloorCount
   bedroom                BedroomCount
-  separatedKitchenLiving Boolean
+  separatedKitchenLiving Boolean         @default(false)
   bathroom               BathroomCount
   facingMaterial         FacingMaterial?
   wallMaterial           WallMaterial
   insulation             Insulation?
-  hasMinimumDownPayment  Boolean
+  hasMinimumDownPayment  Boolean         @default(true)
   houseStatus            HouseStatus
   saleStatus             SaleStatus
 
@@ -179,7 +179,7 @@ model House {
   longitude       Float
   cadastralNumber String?
   yandexDiskLink  String?
-  isActive        Boolean
+  isActive        Boolean  @default(true)
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
