@@ -39,6 +39,7 @@
     "@types/node": "^20.19.28",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@yandex/ymaps3-types": "^1.0.18540164",
     "dotenv": "^17.2.3",
     "eslint": "^9",
     "eslint-config-next": "16.1.1",

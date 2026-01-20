@@ -33,7 +33,7 @@ import {
   WallMaterial,
 } from "@/lib/types";
 import { Switch } from "@/components/ui/switch";
-import { MapPage } from "@/components/common/map";
+import { Map } from "@/components/common/map";
 
 export interface Dictionaries {
   districts: District[] | null;
@@ -185,10 +185,10 @@ export const HouseForm: FC<Props> = ({
 
         <div className="grid gap-3">
           <Label>Место нахождения</Label>
-          <MapPage
-            initCoordinates={{ lat: 0, lng: 0 }}
+          <Map
+            initCoordinates={[54.62573, 56.10465]}
             onAddPoint={(coords) => {
-              console.log("Новая точка:", coords.lat, coords.lng);
+              console.log("Новая точка:", coords);
               // Сохраните в состояние или Prisma для ИЖС Уфа [file:1]
             }}
           />
