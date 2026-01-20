@@ -64,6 +64,21 @@ export const DeveloperForm: FC<Props> = ({
         </div>
 
         <div className="grid gap-3">
+          <Label>Телефон</Label>
+          <Input
+            value={state?.phone || ""}
+            onChange={(event) => {
+              setState(
+                (prev): DeveloperCreateInput => ({
+                  ...prev,
+                  phone: event.target.value,
+                }),
+              );
+            }}
+          />
+        </div>
+
+        <div className="grid gap-3">
           <Label>Ссылка</Label>
           <Input
             value={state?.link || ""}

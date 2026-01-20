@@ -48,7 +48,7 @@ export async function updateDeveloper(
   prevData: any,
   request: DeveloperCreateInput,
 ) {
-  const { id, title, link } = request;
+  const { id, title, phone, link } = request;
 
   if (!id) {
     return { error: "Идентификатор отсутствует" };
@@ -64,6 +64,7 @@ export async function updateDeveloper(
       },
       data: {
         title,
+        phone,
         link,
       },
     });

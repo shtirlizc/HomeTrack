@@ -30,7 +30,11 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { DeveloperCreateInput } from "@/lib/generated/prisma/models/Developer";
 import { DeveloperForm } from "./form";
 
-const defaultCreateState: DeveloperCreateInput = { title: "", link: "" };
+const defaultCreateState: DeveloperCreateInput = {
+  title: "",
+  phone: "",
+  link: "",
+};
 const createInitialState = { error: "", success: false };
 const updateInitialState = { error: "", success: false };
 const deleteInitialState = { error: "" };
@@ -89,6 +93,10 @@ export const DevelopersTable: FC<Props> = ({ developers }) => {
     {
       accessorKey: "title",
       header: "Название",
+    },
+    {
+      accessorKey: "phone",
+      header: "Телефон",
     },
     {
       accessorKey: "link",
