@@ -241,7 +241,10 @@ export const MessengersTable: FC<Props> = ({ messengers }) => {
           setIsCreateMode(false);
         }}
       >
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent
+          className="max-w-110 overflow-y-auto"
+          style={{ maxHeight: "90vh" }}
+        >
           {creatingValues && (
             <MessengerForm
               formTitle="Новый мессенджер"
@@ -261,7 +264,10 @@ export const MessengersTable: FC<Props> = ({ messengers }) => {
           setEditingValues(null);
         }}
       >
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent
+          className="max-w-110 overflow-y-auto"
+          style={{ maxHeight: "90vh" }}
+        >
           {editingValues && (
             <MessengerForm
               formTitle="Редактировать"

@@ -227,7 +227,10 @@ export const DevelopersTable: FC<Props> = ({ developers }) => {
           setIsCreateMode(false);
         }}
       >
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent
+          className="max-w-110 overflow-y-auto"
+          style={{ maxHeight: "90vh" }}
+        >
           {creatingValues && (
             <DeveloperForm
               formTitle="Новый застройщик"
@@ -249,7 +252,10 @@ export const DevelopersTable: FC<Props> = ({ developers }) => {
           setEditingValues(null);
         }}
       >
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent
+          className="max-w-110 overflow-y-auto"
+          style={{ maxHeight: "90vh" }}
+        >
           {editingValues && (
             <DeveloperForm
               formTitle="Редактировать"

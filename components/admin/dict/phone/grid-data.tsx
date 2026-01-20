@@ -235,7 +235,10 @@ export const PhonesTable: FC<Props> = ({ phones }) => {
           setIsCreateMode(false);
         }}
       >
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent
+          className="max-w-110 overflow-y-auto"
+          style={{ maxHeight: "90vh" }}
+        >
           {creatingValues && (
             <PhoneForm
               formTitle="Новый телефон"
@@ -255,7 +258,10 @@ export const PhonesTable: FC<Props> = ({ phones }) => {
           setEditingValues(null);
         }}
       >
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent
+          className="max-w-110 overflow-y-auto"
+          style={{ maxHeight: "90vh" }}
+        >
           {editingValues && (
             <PhoneForm
               formTitle="Редактировать"

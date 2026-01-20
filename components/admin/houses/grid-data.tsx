@@ -6,6 +6,7 @@ import {
   getCoreRowModel,
   useReactTable,
   type ColumnDef,
+  Column,
 } from "@tanstack/react-table";
 
 import {
@@ -31,16 +32,45 @@ import {
   SaleStatus,
   WallMaterial,
 } from "@/lib/types";
-import { FC, useActionState, useEffect, useTransition } from "react";
+import {
+  CSSProperties,
+  FC,
+  useActionState,
+  useEffect,
+  useTransition,
+} from "react";
 import { createHouse, deleteHouse, updateHouse } from "@/app/actions/houses";
 import { FieldDescription } from "@/components/ui/field";
 import { Edit, Trash2, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { HouseUncheckedCreateInput } from "@/lib/generated/prisma/models/House";
-import { HouseForm } from "./form";
-import { Developer, District } from "@/lib/generated/prisma/client";
+import { Dictionaries, HouseForm } from "./form";
 import { Switch } from "@/components/ui/switch";
+
+const getCommonPinningStyles = (
+  column: Column<HouseUncheckedCreateInput>,
+): CSSProperties => {
+  const isPinned = column.getIsPinned();
+  const isLastLeftPinnedColumn =
+    isPinned === "left" && column.getIsLastColumn("left");
+  const isFirstRightPinnedColumn =
+    isPinned === "right" && column.getIsFirstColumn("right");
+
+  return {
+    boxShadow: isLastLeftPinnedColumn
+      ? "-4px 0 4px -4px gray inset"
+      : isFirstRightPinnedColumn
+        ? "4px 0 4px -4px gray inset"
+        : undefined,
+    left: isPinned === "left" ? `${column.getStart("left")}px` : undefined,
+    right: isPinned === "right" ? `${column.getAfter("right")}px` : undefined,
+    opacity: isPinned ? 0.95 : 1,
+    position: isPinned ? "sticky" : "relative",
+    width: column.getSize(),
+    zIndex: isPinned ? 1 : 0,
+  };
+};
 
 const defaultCreateState: HouseUncheckedCreateInput = {
   name: "",
@@ -65,12 +95,9 @@ const defaultCreateState: HouseUncheckedCreateInput = {
   hasMinimumDownPayment: true,
   houseStatus: HouseStatus.BuiltHouse,
   saleStatus: SaleStatus.Available,
-
   latitude: 0,
   longitude: 0,
   developerId: "",
-  // messengers: [],
-  // phones: [],
   cadastralNumber: "",
   yandexDiskLink: "",
   isActive: true,
@@ -81,10 +108,7 @@ const deleteInitialState = { error: "" };
 
 interface Props {
   houses: HouseUncheckedCreateInput[];
-  dictionaries: {
-    districts: District[] | null;
-    developers: Developer[] | null;
-  };
+  dictionaries: Dictionaries;
 }
 
 export const HousesTable: FC<Props> = ({ houses, dictionaries }) => {
@@ -326,14 +350,23 @@ export const HousesTable: FC<Props> = ({ houses, dictionaries }) => {
     {
       accessorKey: "yandexDiskLink",
       header: "Ссылка на яндекс диск",
-      cell: () => (
-        <a
-          href="https://ya.ru"
-          className="font-medium text-fg-brand underline hover:no-underline"
-        >
-          ya.ru
-        </a>
-      ),
+      cell: ({ row }) => {
+        const link = row.original.yandexDiskLink;
+
+        if (!link) {
+          return null;
+        }
+
+        return (
+          <a
+            href={link}
+            target="_blank"
+            className="font-medium text-fg-brand underline hover:no-underline"
+          >
+            {link}
+          </a>
+        );
+      },
     },
     {
       accessorKey: "isActive",
@@ -350,7 +383,7 @@ export const HousesTable: FC<Props> = ({ houses, dictionaries }) => {
       size: 80,
       cell: ({ row }) => {
         return (
-          <div className="flex justify-end gap-2">
+          <div className="flex justify-end gap-2 sticky right-0">
             <Button
               variant="outline"
               size="icon"
@@ -384,6 +417,11 @@ export const HousesTable: FC<Props> = ({ houses, dictionaries }) => {
     data: houses,
     columns,
     getCoreRowModel: getCoreRowModel(),
+    initialState: {
+      columnPinning: {
+        right: ["_actions"],
+      },
+    },
   });
 
   useEffect(() => {
@@ -426,8 +464,14 @@ export const HousesTable: FC<Props> = ({ houses, dictionaries }) => {
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
+                  const { column } = header;
+
                   return (
-                    <TableHead key={header.id}>
+                    <TableHead
+                      key={header.id}
+                      className="bg-background"
+                      style={{ ...getCommonPinningStyles(column) }}
+                    >
                       {header.isPlaceholder
                         ? null
                         : flexRender(
@@ -448,7 +492,11 @@ export const HousesTable: FC<Props> = ({ houses, dictionaries }) => {
                   data-state={row.getIsSelected() && "selected"}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                    <TableCell
+                      key={cell.id}
+                      className="bg-background"
+                      style={{ ...getCommonPinningStyles(cell.column) }}
+                    >
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext(),
@@ -477,7 +525,10 @@ export const HousesTable: FC<Props> = ({ houses, dictionaries }) => {
           setIsCreateMode(false);
         }}
       >
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent
+          className="max-w-140 overflow-y-auto p-0"
+          style={{ maxHeight: "90vh" }}
+        >
           {creatingValues && (
             <HouseForm
               formTitle="Новый объект"
@@ -488,6 +539,7 @@ export const HousesTable: FC<Props> = ({ houses, dictionaries }) => {
                 setIsCreateMode(false);
               }}
               onSave={handleCreate}
+              dictionaries={dictionaries}
             />
           )}
         </DialogContent>
@@ -499,7 +551,10 @@ export const HousesTable: FC<Props> = ({ houses, dictionaries }) => {
           setEditingValues(null);
         }}
       >
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent
+          className="max-w-140 overflow-y-auto p-0"
+          style={{ maxHeight: "90vh" }}
+        >
           {editingValues && (
             <HouseForm
               formTitle="Редактировать"
@@ -508,6 +563,7 @@ export const HousesTable: FC<Props> = ({ houses, dictionaries }) => {
               errorMessage={updateState?.error}
               onCancel={handleCancelEdit}
               onSave={handleSaveEdit}
+              dictionaries={dictionaries}
             />
           )}
         </DialogContent>

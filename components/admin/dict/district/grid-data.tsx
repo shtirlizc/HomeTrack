@@ -227,7 +227,10 @@ export const DistrictsTable: FC<Props> = ({ districts }) => {
           setIsCreateMode(false);
         }}
       >
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent
+          className="max-w-110 overflow-y-auto"
+          style={{ maxHeight: "90vh" }}
+        >
           {creatingValues && (
             <DistrictForm
               formTitle="Новый район"
@@ -249,7 +252,10 @@ export const DistrictsTable: FC<Props> = ({ districts }) => {
           setEditingValues(null);
         }}
       >
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent
+          className="max-w-110 overflow-y-auto"
+          style={{ maxHeight: "90vh" }}
+        >
           {editingValues && (
             <DistrictForm
               formTitle="Редактировать"
