@@ -161,6 +161,30 @@ export const HouseForm: FC<Props> = ({
         </div>
 
         <div className="grid gap-3">
+          <Label>Застройщик</Label>
+          <SelectField
+            list={
+              dictionaries.developers?.map(({ id, title }) => {
+                return { id, name: title };
+              }) ?? []
+            }
+            value={state.developerId}
+            onChange={(developerId: string) => {
+              setState(
+                (prev): HouseUncheckedCreateInput => ({
+                  ...prev,
+                  developerId,
+                }),
+              );
+            }}
+            error={(hasError && error?.fieldName === "developerId") || false}
+          />
+          {hasError && error?.fieldName === "developerId" && (
+            <ErrorMessage message={error.error} />
+          )}
+        </div>
+
+        <div className="grid gap-3">
           <Label>Вид объекта</Label>
           <SelectField
             list={Object.entries(mappers.typeMapper).map(([key, value]) => {
@@ -502,30 +526,6 @@ export const HouseForm: FC<Props> = ({
               );
             }}
           />
-        </div>
-
-        <div className="grid gap-3">
-          <Label>Застройщик</Label>
-          <SelectField
-            list={
-              dictionaries.developers?.map(({ id, title }) => {
-                return { id, name: title };
-              }) ?? []
-            }
-            value={state.developerId}
-            onChange={(developerId: string) => {
-              setState(
-                (prev): HouseUncheckedCreateInput => ({
-                  ...prev,
-                  developerId,
-                }),
-              );
-            }}
-            error={(hasError && error?.fieldName === "developerId") || false}
-          />
-          {hasError && error?.fieldName === "developerId" && (
-            <ErrorMessage message={error.error} />
-          )}
         </div>
 
         <div className="grid gap-3">
