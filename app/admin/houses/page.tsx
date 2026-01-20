@@ -2,6 +2,8 @@
 
 import { getHouses } from "@/app/actions/houses";
 import { HousesTable } from "@/components/admin/houses/grid-data";
+import { getDistricts } from "@/app/actions/districts";
+import { getDevelopers } from "@/app/actions/developers";
 
 export default async function HousesPage() {
   const houses = await getHouses();
@@ -9,13 +11,17 @@ export default async function HousesPage() {
     return null;
   }
 
+  const districts = (await getDistricts()) ?? null;
+  const developers = (await getDevelopers()) ?? null;
+
+  const dictionaries = {
+    districts,
+    developers,
+  };
+
   return (
     <div className="md:pt-6 pt-2">
-      <HousesTable
-        houses={houses.map((_) => {
-          return { ..._, messengers: [], phones: [] };
-        })}
-      />
+      <HousesTable houses={houses} dictionaries={dictionaries} />
     </div>
   );
 }

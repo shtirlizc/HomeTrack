@@ -13,15 +13,15 @@ import { FieldDescription } from "@/components/ui/field";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import * as React from "react";
-import { HouseInput } from "@/app/actions/houses";
+import { HouseUncheckedCreateInput } from "@/lib/generated/prisma/models/House";
 
 interface Props {
   formTitle: string;
-  house: HouseInput;
+  house: HouseUncheckedCreateInput;
   isPending?: boolean;
   errorMessage?: string;
   onCancel: () => void;
-  onSave: (data: HouseInput) => void;
+  onSave: (data: HouseUncheckedCreateInput) => void;
 }
 
 export const HouseForm: FC<Props> = ({
@@ -32,7 +32,7 @@ export const HouseForm: FC<Props> = ({
   onCancel,
   onSave,
 }) => {
-  const [state, setState] = useState<HouseInput>(house);
+  const [state, setState] = useState<HouseUncheckedCreateInput>(house);
 
   const handleSave = () => {
     onSave(state);
@@ -54,7 +54,7 @@ export const HouseForm: FC<Props> = ({
             value={state.name}
             onChange={(event) => {
               setState(
-                (prev): HouseInput => ({
+                (prev): HouseUncheckedCreateInput => ({
                   ...prev,
                   name: event.target.value,
                 }),
@@ -69,7 +69,7 @@ export const HouseForm: FC<Props> = ({
             value={state?.description || ""}
             onChange={(event) => {
               setState(
-                (prev): HouseInput => ({
+                (prev): HouseUncheckedCreateInput => ({
                   ...prev,
                   description: event.target.value,
                 }),

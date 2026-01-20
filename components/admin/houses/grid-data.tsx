@@ -27,23 +27,22 @@ import {
   HouseType,
   Insulation,
   LandCategory,
+  mappers,
   SaleStatus,
   WallMaterial,
 } from "@/lib/types";
 import { FC, useActionState, useEffect, useTransition } from "react";
-import {
-  createHouse,
-  deleteHouse,
-  HouseInput,
-  updateHouse,
-} from "@/app/actions/houses";
+import { createHouse, deleteHouse, updateHouse } from "@/app/actions/houses";
 import { FieldDescription } from "@/components/ui/field";
 import { Edit, Trash2, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { HouseUncheckedCreateInput } from "@/lib/generated/prisma/models/House";
 import { HouseForm } from "./form";
+import { Developer, District } from "@/lib/generated/prisma/client";
+import { Switch } from "@/components/ui/switch";
 
-const defaultCreateState: HouseInput = {
+const defaultCreateState: HouseUncheckedCreateInput = {
   name: "",
   description: "",
   districtId: "",
@@ -70,8 +69,8 @@ const defaultCreateState: HouseInput = {
   latitude: 0,
   longitude: 0,
   developerId: "",
-  messengers: [],
-  phones: [],
+  // messengers: [],
+  // phones: [],
   cadastralNumber: "",
   yandexDiskLink: "",
   isActive: true,
@@ -81,10 +80,14 @@ const updateInitialState = { error: "", success: false };
 const deleteInitialState = { error: "" };
 
 interface Props {
-  houses: HouseInput[];
+  houses: HouseUncheckedCreateInput[];
+  dictionaries: {
+    districts: District[] | null;
+    developers: Developer[] | null;
+  };
 }
 
-export const HousesTable: FC<Props> = ({ houses }) => {
+export const HousesTable: FC<Props> = ({ houses, dictionaries }) => {
   const [isPending, startTransition] = useTransition();
 
   const [createState, createFormAction] = useActionState(
@@ -102,23 +105,22 @@ export const HousesTable: FC<Props> = ({ houses }) => {
 
   const [isCreateMode, setIsCreateMode] = React.useState(false);
   const [creatingValues, setCreatingValues] =
-    React.useState<HouseInput>(defaultCreateState);
-  const handleCreate = async (data: HouseInput) => {
+    React.useState<HouseUncheckedCreateInput>(defaultCreateState);
+  const handleCreate = async (data: HouseUncheckedCreateInput) => {
     startTransition(async () => {
       createFormAction(data);
     });
   };
 
-  const [editingValues, setEditingValues] = React.useState<HouseInput | null>(
-    null,
-  );
-  const handleEdit = (house: HouseInput) => {
+  const [editingValues, setEditingValues] =
+    React.useState<HouseUncheckedCreateInput | null>(null);
+  const handleEdit = (house: HouseUncheckedCreateInput) => {
     setEditingValues(house);
   };
   const handleCancelEdit = () => {
     setEditingValues(null);
   };
-  const handleSaveEdit = async (house: HouseInput) => {
+  const handleSaveEdit = async (house: HouseUncheckedCreateInput) => {
     startTransition(async () => {
       updateFormAction(house);
     });
@@ -130,7 +132,7 @@ export const HousesTable: FC<Props> = ({ houses }) => {
     });
   };
 
-  const columns: ColumnDef<HouseInput>[] = [
+  const columns: ColumnDef<HouseUncheckedCreateInput>[] = [
     {
       accessorKey: "name",
       header: "Название объекта",
@@ -138,14 +140,31 @@ export const HousesTable: FC<Props> = ({ houses }) => {
     {
       accessorKey: "description",
       header: "Описание",
+      cell: ({ row }) => (
+        <div className="max-w-50 overflow-hidden text-ellipsis">
+          {row.original.description}
+        </div>
+      ),
     },
     {
       accessorKey: "districtId",
       header: "Район",
+      cell: ({ row }) => {
+        if (!dictionaries?.districts) {
+          return row.original.districtId;
+        }
+
+        return (
+          dictionaries.districts.find(
+            ({ id }) => id === row.original.districtId,
+          )?.title ?? "Район не найден"
+        );
+      },
     },
     {
       accessorKey: "type",
       header: "Вид объекта",
+      cell: ({ row }) => mappers.typeMapper[row.original.type],
     },
     {
       accessorKey: "price",
@@ -162,62 +181,119 @@ export const HousesTable: FC<Props> = ({ houses }) => {
     {
       accessorKey: "landCategory",
       header: "Категория земли",
+      cell: ({ row }) => mappers.landCategoryMapper[row.original.landCategory],
     },
     {
       accessorKey: "finishing",
       header: "Отделка",
+      cell: ({ row }) => mappers.finishingMapper[row.original.finishing],
     },
     {
       accessorKey: "heating",
       header: "Отопление",
+      cell: ({ row }) => mappers.heatingMapper[row.original.heating],
     },
     {
       accessorKey: "asphaltToHouse",
       header: "Асфальт до дома",
+      cell: ({ row }) => {
+        const id = `is-default-${row.id}`;
+
+        return (
+          <Switch id={id} checked={row.original.asphaltToHouse} disabled />
+        );
+      },
     },
     {
       accessorKey: "closedComplex",
       header: "Закрытый ЖК",
+      cell: ({ row }) => {
+        const id = `is-default-${row.id}`;
+
+        return <Switch id={id} checked={row.original.closedComplex} disabled />;
+      },
     },
     {
       accessorKey: "floor",
       header: "Количество этажей",
+      cell: ({ row }) => mappers.floorCountMapper[row.original.floor],
     },
     {
       accessorKey: "bedroom",
       header: "Количество спален",
+      cell: ({ row }) => mappers.bedroomCountMapper[row.original.bedroom],
     },
     {
       accessorKey: "separatedKitchenLiving",
       header: "Раздельная кухня и гостинная",
+      cell: ({ row }) => {
+        const id = `is-default-${row.id}`;
+
+        return (
+          <Switch
+            id={id}
+            checked={row.original.separatedKitchenLiving}
+            disabled
+          />
+        );
+      },
     },
     {
       accessorKey: "bathroom",
       header: "Количество сан. узлов",
+      cell: ({ row }) => mappers.bathroomCountMapper[row.original.bathroom],
     },
     {
       accessorKey: "facingMaterial",
       header: "Материал облицовки",
+      cell: ({ row }) => {
+        if (!row.original?.facingMaterial) {
+          return "Не выбран";
+        }
+
+        return mappers.facingMaterialMapper[row.original.facingMaterial];
+      },
     },
     {
       accessorKey: "wallMaterial",
       header: "Материал стен",
+      cell: ({ row }) => mappers.wallMaterialMapper[row.original.wallMaterial],
     },
     {
       accessorKey: "insulation",
       header: "Утеплитель",
+      cell: ({ row }) => {
+        if (!row.original?.insulation) {
+          return "Не выбран";
+        }
+
+        return mappers.insulationMapper[row.original.insulation];
+      },
     },
     {
       accessorKey: "hasMinimumDownPayment",
       header: "Дом без первоначального взноса?",
+      cell: ({ row }) => {
+        const id = `is-default-${row.id}`;
+
+        return (
+          <Switch
+            id={id}
+            checked={row.original.separatedKitchenLiving}
+            disabled
+          />
+        );
+      },
     },
     {
       accessorKey: "houseStatus",
       header: "Статус объекта",
+      cell: ({ row }) => mappers.statusMapper[row.original.houseStatus],
     },
     {
       accessorKey: "saleStatus",
       header: "Статус продажи объекта",
+      cell: ({ row }) => mappers.saleMapper[row.original.saleStatus],
     },
 
     {
@@ -231,14 +307,17 @@ export const HousesTable: FC<Props> = ({ houses }) => {
     {
       accessorKey: "developerId",
       header: "Застройщик",
-    },
-    {
-      accessorKey: "messengers",
-      header: "Мессенджеры",
-    },
-    {
-      accessorKey: "phones",
-      header: "Телефоны",
+      cell: ({ row }) => {
+        if (!dictionaries?.developers) {
+          return row.original.developerId;
+        }
+
+        return (
+          dictionaries.developers.find(
+            ({ id }) => id === row.original.developerId,
+          )?.title ?? "Застройщик не найден"
+        );
+      },
     },
     {
       accessorKey: "cadastralNumber",
@@ -247,10 +326,23 @@ export const HousesTable: FC<Props> = ({ houses }) => {
     {
       accessorKey: "yandexDiskLink",
       header: "Ссылка на яндекс диск",
+      cell: () => (
+        <a
+          href="https://ya.ru"
+          className="font-medium text-fg-brand underline hover:no-underline"
+        >
+          ya.ru
+        </a>
+      ),
     },
     {
       accessorKey: "isActive",
       header: "Показывать покупателям",
+      cell: ({ row }) => {
+        const id = `is-default-${row.id}`;
+
+        return <Switch id={id} checked={row.original.isActive} disabled />;
+      },
     },
     {
       accessorKey: "_actions",
@@ -329,7 +421,7 @@ export const HousesTable: FC<Props> = ({ houses }) => {
       )}
 
       <div className="overflow-hidden rounded-md border">
-        <Table style={{ minHeight: "calc(100vh - 157px)" }}>
+        <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
