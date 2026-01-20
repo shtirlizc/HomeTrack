@@ -88,6 +88,8 @@ export async function deleteHouse(prevData: any, id: string) {
 function validateHouse(house: HouseUncheckedCreateInput) {
   const {
     name,
+    districtId,
+    developerId,
     type,
     price,
     houseArea,
@@ -106,53 +108,61 @@ function validateHouse(house: HouseUncheckedCreateInput) {
   } = house;
 
   if (!name.trim()) {
-    return { error: "Название обязательно" };
+    return { error: "Название обязательно", fieldName: "name" };
+  }
+  if (!districtId) {
+    return { error: "Район обязателен", fieldName: "districtId" };
+  }
+  if (!developerId) {
+    return { error: "Застройщик обязателен", fieldName: "developerId" };
   }
   if (type === undefined) {
-    return { error: "Вид объекта обязателен" };
+    return { error: "Вид объекта обязателен", fieldName: "type" };
   }
   if (!String(price).trim()) {
-    return { error: "Цена обязательна" };
+    return { error: "Цена обязательна", fieldName: "price" };
   }
   if (!String(houseArea).trim()) {
-    return { error: "Площадь дома обязательна" };
+    return { error: "Площадь дома обязательна", fieldName: "houseArea" };
   }
   if (!String(plotArea).trim()) {
-    return { error: "Площадь участка обязательна" };
+    return { error: "Площадь участка обязательна", fieldName: "plotArea" };
   }
   if (landCategory === undefined) {
-    return { error: "Категория земли обязательна" };
+    return { error: "Категория земли обязательна", fieldName: "landCategory" };
   }
   if (finishing === undefined) {
-    return { error: "Отделка обязательна" };
+    return { error: "Отделка обязательна", fieldName: "finishing" };
   }
   if (heating === undefined) {
-    return { error: "Отопление обязателдьно" };
+    return { error: "Отопление обязателдьно", fieldName: "heating" };
   }
   if (floor === undefined) {
-    return { error: "Количество этажей обязательно" };
+    return { error: "Количество этажей обязательно", fieldName: "floor" };
   }
   if (bedroom === undefined) {
-    return { error: "Количество спален обязательно" };
+    return { error: "Количество спален обязательно", fieldName: "bedroom" };
   }
   if (bathroom === undefined) {
-    return { error: "Количество сан. узлов обязательно" };
+    return {
+      error: "Количество сан. узлов обязательно",
+      fieldName: "bathroom",
+    };
   }
   if (wallMaterial === undefined) {
-    return { error: "Материал стен обязателен" };
+    return { error: "Материал стен обязателен", fieldName: "wallMaterial" };
   }
   if (houseStatus === undefined) {
-    return { error: "Статус дома обязателен" };
+    return { error: "Статус дома обязателен", fieldName: "houseStatus" };
   }
   if (saleStatus === undefined) {
-    return { error: "Статус продажи обязателен" };
+    return { error: "Статус продажи обязателен", fieldName: "saleStatus" };
   }
-
   if (!String(latitude).trim()) {
-    return { error: "Широта обязательна" };
+    return { error: "Широта обязательна", fieldName: "latitude" };
   }
   if (!String(longitude).trim()) {
-    return { error: "Долгота обязательна" };
+    return { error: "Долгота обязательна", fieldName: "longitude" };
   }
 
   return null;

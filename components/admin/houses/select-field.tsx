@@ -13,12 +13,18 @@ interface Props {
   list: Array<{ name: string; id: string }>;
   value: string;
   onChange: (value: string) => void;
+  error?: boolean;
 }
 
-export const SelectField: FC<Props> = ({ list, value, onChange }) => {
+export const SelectField: FC<Props> = ({
+  list,
+  value,
+  onChange,
+  error = false,
+}) => {
   return (
     <Select value={value} onValueChange={onChange}>
-      <SelectTrigger className="w-full">
+      <SelectTrigger className={`w-full ${error && "border-red-500"}`}>
         <SelectValue placeholder="Выберите район" />
       </SelectTrigger>
       <SelectContent>

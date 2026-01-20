@@ -39,11 +39,17 @@ export interface Dictionaries {
   developers: Developer[] | null;
 }
 
+const ErrorMessage: FC<{ message?: string }> = ({ message }) => {
+  return (
+    <FieldDescription className="text-red-500">{message}</FieldDescription>
+  );
+};
+
 interface Props {
   formTitle: string;
   house: HouseUncheckedCreateInput;
   isPending?: boolean;
-  errorMessage?: string;
+  error: { error?: string; success?: false; fieldName?: string };
   onCancel: () => void;
   onSave: (data: HouseUncheckedCreateInput) => void;
   dictionaries: Dictionaries;
@@ -53,7 +59,7 @@ export const HouseForm: FC<Props> = ({
   formTitle,
   house,
   isPending = false,
-  errorMessage = "",
+  error = {},
   onCancel,
   onSave,
   dictionaries,
@@ -64,11 +70,16 @@ export const HouseForm: FC<Props> = ({
     onSave(state);
   };
 
+  console.log("error", error);
+
+  const hasError = error?.error || false;
+
   return (
     <form action={handleSave} className="flex flex-col gap-6 pt-6">
       <DialogHeader className="px-6">
         <DialogTitle>{formTitle}</DialogTitle>
       </DialogHeader>
+
       <div className="grid gap-4 px-6">
         {state.id && (
           <Input type="hidden" value={state.id} onChange={() => {}} />
@@ -77,6 +88,7 @@ export const HouseForm: FC<Props> = ({
         <div className="grid gap-3">
           <Label>Название объекта</Label>
           <Input
+            className={`${hasError && error?.fieldName === "name" && "border-red-500"}`}
             value={state.name}
             onChange={(event) => {
               setState(
@@ -87,6 +99,9 @@ export const HouseForm: FC<Props> = ({
               );
             }}
           />
+          {hasError && error?.fieldName === "name" && (
+            <ErrorMessage message={error.error} />
+          )}
         </div>
 
         <div className="flex items-center space-x-2">
@@ -138,7 +153,11 @@ export const HouseForm: FC<Props> = ({
                 }),
               );
             }}
+            error={(hasError && error?.fieldName === "districtId") || false}
           />
+          {hasError && error?.fieldName === "districtId" && (
+            <ErrorMessage message={error.error} />
+          )}
         </div>
 
         <div className="grid gap-3">
@@ -486,7 +505,7 @@ export const HouseForm: FC<Props> = ({
         </div>
 
         <div className="grid gap-3">
-          <Label>Зазстройщик</Label>
+          <Label>Застройщик</Label>
           <SelectField
             list={
               dictionaries.developers?.map(({ id, title }) => {
@@ -502,7 +521,11 @@ export const HouseForm: FC<Props> = ({
                 }),
               );
             }}
+            error={(hasError && error?.fieldName === "developerId") || false}
           />
+          {hasError && error?.fieldName === "developerId" && (
+            <ErrorMessage message={error.error} />
+          )}
         </div>
 
         <div className="grid gap-3">
@@ -534,12 +557,6 @@ export const HouseForm: FC<Props> = ({
             }}
           />
         </div>
-
-        {errorMessage && (
-          <FieldDescription className="text-center text-red-500">
-            {errorMessage}
-          </FieldDescription>
-        )}
       </div>
 
       <DialogFooter className="px-6 pb-6 bg-background sticky bottom-0">

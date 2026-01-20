@@ -45,8 +45,9 @@ import { Edit, Trash2, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { HouseUncheckedCreateInput } from "@/lib/generated/prisma/models/House";
-import { Dictionaries, HouseForm } from "./form";
 import { Switch } from "@/components/ui/switch";
+
+import { Dictionaries, HouseForm } from "./form";
 
 const getCommonPinningStyles = (
   column: Column<HouseUncheckedCreateInput>,
@@ -102,8 +103,8 @@ const defaultCreateState: HouseUncheckedCreateInput = {
   yandexDiskLink: "",
   isActive: true,
 };
-const createInitialState = { error: "", success: false };
-const updateInitialState = { error: "", success: false };
+const createInitialState = { error: "", success: false, fieldName: "" };
+const updateInitialState = { error: "", success: false, fieldName: "" };
 const deleteInitialState = { error: "" };
 
 interface Props {
@@ -534,7 +535,7 @@ export const HousesTable: FC<Props> = ({ houses, dictionaries }) => {
               formTitle="Новый объект"
               house={creatingValues}
               isPending={isPending}
-              errorMessage={createState?.error}
+              error={createState}
               onCancel={() => {
                 setIsCreateMode(false);
               }}
@@ -560,7 +561,7 @@ export const HousesTable: FC<Props> = ({ houses, dictionaries }) => {
               formTitle="Редактировать"
               house={editingValues}
               isPending={isPending}
-              errorMessage={updateState?.error}
+              error={updateState}
               onCancel={handleCancelEdit}
               onSave={handleSaveEdit}
               dictionaries={dictionaries}
