@@ -1,8 +1,12 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "@/components/common/dark-mode/theme-provider";
+import Script from "next/script";
+import { env } from "prisma/config";
 
 import "./globals.css";
+
+const yandexApiKey = env("YANDEX_API_KEY");
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -37,6 +41,11 @@ export default function RootLayout({
         >
           {children}
         </ThemeProvider>
+
+        <Script
+          strategy="beforeInteractive"
+          src={`https://api-maps.yandex.ru/v3/?apikey=${yandexApiKey}&lang=ru_RU`}
+        />
       </body>
     </html>
   );
