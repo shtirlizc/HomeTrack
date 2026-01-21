@@ -33,7 +33,9 @@ import {
   WallMaterial,
 } from "@/lib/types";
 import { Switch } from "@/components/ui/switch";
-import { Map } from "@/components/common/map";
+import { Coordinates, Map } from "@/components/common/map";
+
+const INIT_COORDS: Coordinates = [56.10962394067204, 54.62695042147847];
 
 export interface Dictionaries {
   districts: District[] | null;
@@ -66,6 +68,11 @@ export const HouseForm: FC<Props> = ({
   dictionaries,
 }) => {
   const [state, setState] = useState<HouseUncheckedCreateInput>(house);
+
+  const startCoords: Coordinates =
+    !state.latitude && !state.longitude
+      ? INIT_COORDS
+      : [state.latitude, state.longitude];
 
   const handleSave = () => {
     onSave(state);
@@ -186,10 +193,15 @@ export const HouseForm: FC<Props> = ({
         <div className="grid gap-3">
           <Label>Место нахождения</Label>
           <Map
-            initCoordinates={[54.62573, 56.10465]}
+            initCoordinates={startCoords}
             onAddPoint={(coords) => {
-              console.log("Новая точка:", coords);
-              // Сохраните в состояние или Prisma для ИЖС Уфа [file:1]
+              setState(
+                (prev): HouseUncheckedCreateInput => ({
+                  ...prev,
+                  latitude: coords.at(0) ?? 0,
+                  longitude: coords.at(1) ?? 0,
+                }),
+              );
             }}
           />
         </div>

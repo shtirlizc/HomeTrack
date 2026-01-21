@@ -4,6 +4,7 @@ import { ThemeProvider } from "@/components/common/dark-mode/theme-provider";
 import Script from "next/script";
 import { env } from "prisma/config";
 
+import "@yandex/ymaps3-default-ui-theme/dist/esm/index.css";
 import "./globals.css";
 
 const yandexApiKey = env("YANDEX_API_KEY");
