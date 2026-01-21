@@ -1,4 +1,5 @@
 "use client";
+
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 import type { ReactifiedModule } from "@yandex/ymaps3-types/reactify";

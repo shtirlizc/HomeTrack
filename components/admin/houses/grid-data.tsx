@@ -48,6 +48,7 @@ import { HouseUncheckedCreateInput } from "@/lib/generated/prisma/models/House";
 import { Switch } from "@/components/ui/switch";
 
 import { Dictionaries, HouseForm } from "./form";
+import { SerializedEditorState } from "lexical";
 
 const getCommonPinningStyles = (
   column: Column<HouseUncheckedCreateInput>,
@@ -165,11 +166,24 @@ export const HousesTable: FC<Props> = ({ houses, dictionaries }) => {
     {
       accessorKey: "description",
       header: "Описание",
-      cell: ({ row }) => (
-        <div className="max-w-50 overflow-hidden text-ellipsis">
-          {row.original.description}
-        </div>
-      ),
+      cell: ({ row }) => {
+        const initObject = row.original.description
+          ? JSON.parse(row.original.description as string)
+          : "";
+        if (!initObject) {
+          return null;
+        }
+
+        const firstLineText = initObject.root.children
+          .at(0)
+          .children.at(0).text;
+
+        return (
+          <div className="max-w-50 overflow-hidden text-ellipsis">
+            {firstLineText}
+          </div>
+        );
+      },
     },
     {
       accessorKey: "districtId",

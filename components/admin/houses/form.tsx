@@ -14,7 +14,6 @@ import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import * as React from "react";
 import { HouseUncheckedCreateInput } from "@/lib/generated/prisma/models/House";
-import { Textarea } from "@/components/ui/textarea";
 import { SelectField } from "@/components/admin/houses/select-field";
 import { Developer, District } from "@/lib/generated/prisma/client";
 import {
@@ -34,6 +33,7 @@ import {
 } from "@/lib/types";
 import { Switch } from "@/components/ui/switch";
 import { Coordinates, Map } from "@/components/common/map";
+import { MarkdownEditor } from "@/components/common/markdown-editor";
 
 const INIT_COORDS: Coordinates = [56.10962394067204, 54.62695042147847];
 
@@ -128,16 +128,14 @@ export const HouseForm: FC<Props> = ({
 
         <div className="grid gap-3">
           <Label>Описание</Label>
-          <Textarea
-            style={{ maxHeight: 200 }}
-            value={state?.description || ""}
-            onChange={(event) => {
-              setState(
-                (prev): HouseUncheckedCreateInput => ({
-                  ...prev,
-                  description: event.target.value,
-                }),
-              );
+          <MarkdownEditor
+            initialMd={state?.description}
+            onChange={(md) => {
+              console.log("updated md", md);
+              setState((prev) => ({
+                ...prev,
+                description: md,
+              }));
             }}
           />
         </div>
