@@ -46,13 +46,11 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { HouseUncheckedCreateInput } from "@/lib/generated/prisma/models/House";
 import { Switch } from "@/components/ui/switch";
+import { House } from "@/lib/generated/prisma/client";
 
 import { Dictionaries, HouseForm } from "./form";
-import { SerializedEditorState } from "lexical";
 
-const getCommonPinningStyles = (
-  column: Column<HouseUncheckedCreateInput>,
-): CSSProperties => {
+const getCommonPinningStyles = (column: Column<House>): CSSProperties => {
   const isPinned = column.getIsPinned();
   const isLastLeftPinnedColumn =
     isPinned === "left" && column.getIsLastColumn("left");
@@ -109,7 +107,7 @@ const updateInitialState = { error: "", success: false, fieldName: "" };
 const deleteInitialState = { error: "" };
 
 interface Props {
-  houses: HouseUncheckedCreateInput[];
+  houses: House[];
   dictionaries: Dictionaries;
 }
 
@@ -158,7 +156,7 @@ export const HousesTable: FC<Props> = ({ houses, dictionaries }) => {
     });
   };
 
-  const columns: ColumnDef<HouseUncheckedCreateInput>[] = [
+  const columns: ColumnDef<House>[] = [
     {
       accessorKey: "name",
       header: "Название объекта",
@@ -404,7 +402,7 @@ export const HousesTable: FC<Props> = ({ houses, dictionaries }) => {
               size="icon"
               disabled={isPending}
               onClick={() => {
-                handleEdit(row.original);
+                handleEdit(row.original as HouseUncheckedCreateInput);
               }}
             >
               <Edit className="h-[1.2rem] w-[1.2rem]" />

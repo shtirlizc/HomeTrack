@@ -131,7 +131,6 @@ export const HouseForm: FC<Props> = ({
           <MarkdownEditor
             initialMd={state?.description}
             onChange={(md) => {
-              console.log("updated md", md);
               setState((prev) => ({
                 ...prev,
                 description: md,
