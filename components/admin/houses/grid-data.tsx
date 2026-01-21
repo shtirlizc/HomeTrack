@@ -39,18 +39,25 @@ import {
   useEffect,
   useTransition,
 } from "react";
-import { createHouse, deleteHouse, updateHouse } from "@/app/actions/houses";
+import {
+  createHouse,
+  deleteHouse,
+  HouseWithPhones,
+  updateHouse,
+} from "@/app/actions/houses";
 import { FieldDescription } from "@/components/ui/field";
 import { Edit, Trash2, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { HouseUncheckedCreateInput } from "@/lib/generated/prisma/models/House";
 import { Switch } from "@/components/ui/switch";
-import { House } from "@/lib/generated/prisma/client";
+import { Badge } from "@/components/ui/badge";
 
 import { Dictionaries, HouseForm } from "./form";
 
-const getCommonPinningStyles = (column: Column<House>): CSSProperties => {
+const getCommonPinningStyles = (
+  column: Column<HouseWithPhones>,
+): CSSProperties => {
   const isPinned = column.getIsPinned();
   const isLastLeftPinnedColumn =
     isPinned === "left" && column.getIsLastColumn("left");
@@ -107,7 +114,7 @@ const updateInitialState = { error: "", success: false, fieldName: "" };
 const deleteInitialState = { error: "" };
 
 interface Props {
-  houses: House[];
+  houses: HouseWithPhones[];
   dictionaries: Dictionaries;
 }
 
@@ -156,7 +163,7 @@ export const HousesTable: FC<Props> = ({ houses, dictionaries }) => {
     });
   };
 
-  const columns: ColumnDef<House>[] = [
+  const columns: ColumnDef<HouseWithPhones>[] = [
     {
       accessorKey: "name",
       header: "Название объекта",
@@ -359,6 +366,19 @@ export const HousesTable: FC<Props> = ({ houses, dictionaries }) => {
     {
       accessorKey: "cadastralNumber",
       header: "Кадастровый номер",
+    },
+    {
+      accessorKey: "phones",
+      header: "Телефоны",
+      cell: ({ row }) => {
+        return (
+          <div className="flex justify-center gap-1">
+            {row.original.phones.map(({ id, phone }) => (
+              <Badge key={id}>{phone.label}</Badge>
+            ))}
+          </div>
+        );
+      },
     },
     {
       accessorKey: "yandexDiskLink",

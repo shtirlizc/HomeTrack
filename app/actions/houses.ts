@@ -1,17 +1,32 @@
 "use server";
 
-import { House } from "@/lib/generated/prisma/client";
+import { Prisma } from "@/lib/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { HouseUncheckedCreateInput } from "@/lib/generated/prisma/models/House";
 
-export async function getHouses() {
-  try {
-    const houses: House[] = await prisma.house.findMany({
-      orderBy: { createdAt: "asc" },
-    });
+export type HouseWithPhones = Prisma.HouseGetPayload<{
+  include: {
+    phones: {
+      include: {
+        phone: true;
+      };
+    };
+  };
+}>;
 
-    return houses;
+export async function getHouses(): Promise<HouseWithPhones[] | null> {
+  try {
+    return prisma.house.findMany({
+      orderBy: { createdAt: "asc" },
+      include: {
+        phones: {
+          include: {
+            phone: true,
+          },
+        },
+      },
+    });
   } catch (error) {
     console.error(error);
 
