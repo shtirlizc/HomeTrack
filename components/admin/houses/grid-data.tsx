@@ -179,7 +179,7 @@ export const HousesTable: FC<Props> = ({ houses, dictionaries }) => {
           return null;
         }
 
-        const firstLineText = initObject.root.children
+        const firstLineText = initObject.root?.children
           .at(0)
           .children.at(0).text;
 
