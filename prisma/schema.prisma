@@ -155,7 +155,7 @@ enum SaleStatus {
 model House {
   id                     String          @id @default(uuid())
   name                   String
-  description            String?
+  description            Json?
   type                   HouseType
   price                  Float
   houseArea              Float
