@@ -13,9 +13,8 @@ import { FieldDescription } from "@/components/ui/field";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import * as React from "react";
-import { HouseUncheckedCreateInput } from "@/lib/generated/prisma/models/House";
 import { SelectField } from "@/components/admin/houses/select-field";
-import { Developer, District } from "@/lib/generated/prisma/client";
+import { Developer, District, Phone } from "@/lib/generated/prisma/client";
 import {
   BathroomCount,
   BedroomCount,
@@ -34,12 +33,16 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Coordinates, Map } from "@/components/common/map";
 import { MarkdownEditor } from "@/components/common/markdown-editor";
+import MultipleSelector from "@/components/ui/multi-select";
+import { IncludedHouse } from "@/app/actions/houses";
+
+import { makeIncludedHousePhone } from "./utils";
 
 const INIT_COORDS: Coordinates = [56.10962394067204, 54.62695042147847];
 
 export interface Dictionaries {
-  districts: District[] | null;
-  developers: Developer[] | null;
+  districts: District[];
+  developers: Developer[];
 }
 
 const ErrorMessage: FC<{ message?: string }> = ({ message }) => {
@@ -50,13 +53,16 @@ const ErrorMessage: FC<{ message?: string }> = ({ message }) => {
 
 interface Props {
   formTitle: string;
-  house: HouseUncheckedCreateInput;
+  house: IncludedHouse;
   isPending?: boolean;
   error: { error?: string; success?: false; fieldName?: string };
   onCancel: () => void;
-  onSave: (data: HouseUncheckedCreateInput) => void;
+  onSave: (data: IncludedHouse) => void;
   dictionaries: Dictionaries;
+  phones: Phone[];
 }
+
+const makeOptionItem = ({ id, label }: Phone) => ({ value: id, label });
 
 export const HouseForm: FC<Props> = ({
   formTitle,
@@ -66,8 +72,11 @@ export const HouseForm: FC<Props> = ({
   onCancel,
   onSave,
   dictionaries,
+  phones,
 }) => {
-  const [state, setState] = useState<HouseUncheckedCreateInput>(house);
+  const phoneOptions = phones.map(makeOptionItem);
+
+  const [state, setState] = useState<IncludedHouse>(house);
 
   const startCoords: Coordinates =
     !state.latitude && !state.longitude
@@ -94,11 +103,12 @@ export const HouseForm: FC<Props> = ({
         <div className="grid gap-3">
           <Label>Название объекта</Label>
           <Input
+            placeholder="Название объекта"
             className={`${hasError && error?.fieldName === "name" && "border-red-500"}`}
             value={state.name}
             onChange={(event) => {
               setState(
-                (prev): HouseUncheckedCreateInput => ({
+                (prev): IncludedHouse => ({
                   ...prev,
                   name: event.target.value,
                 }),
@@ -116,7 +126,7 @@ export const HouseForm: FC<Props> = ({
             checked={state.isActive}
             onCheckedChange={(checked) => {
               setState(
-                (prev): HouseUncheckedCreateInput => ({
+                (prev): IncludedHouse => ({
                   ...prev,
                   isActive: checked,
                 }),
@@ -150,7 +160,7 @@ export const HouseForm: FC<Props> = ({
             value={state.districtId}
             onChange={(districtId: string) => {
               setState(
-                (prev): HouseUncheckedCreateInput => ({
+                (prev): IncludedHouse => ({
                   ...prev,
                   districtId,
                 }),
@@ -174,7 +184,7 @@ export const HouseForm: FC<Props> = ({
             value={state.developerId}
             onChange={(developerId: string) => {
               setState(
-                (prev): HouseUncheckedCreateInput => ({
+                (prev): IncludedHouse => ({
                   ...prev,
                   developerId,
                 }),
@@ -193,7 +203,7 @@ export const HouseForm: FC<Props> = ({
             initCoordinates={startCoords}
             onAddPoint={(coords) => {
               setState(
-                (prev): HouseUncheckedCreateInput => ({
+                (prev): IncludedHouse => ({
                   ...prev,
                   latitude: coords.at(0) ?? 0,
                   longitude: coords.at(1) ?? 0,
@@ -212,7 +222,7 @@ export const HouseForm: FC<Props> = ({
             value={state.type}
             onChange={(type: string) => {
               setState(
-                (prev): HouseUncheckedCreateInput => ({
+                (prev): IncludedHouse => ({
                   ...prev,
                   type: type as HouseType,
                 }),
@@ -228,7 +238,7 @@ export const HouseForm: FC<Props> = ({
             value={state.price}
             onChange={(event) => {
               setState(
-                (prev): HouseUncheckedCreateInput => ({
+                (prev): IncludedHouse => ({
                   ...prev,
                   price: Number(event.target.value),
                 }),
@@ -244,7 +254,7 @@ export const HouseForm: FC<Props> = ({
             value={state.houseArea}
             onChange={(event) => {
               setState(
-                (prev): HouseUncheckedCreateInput => ({
+                (prev): IncludedHouse => ({
                   ...prev,
                   houseArea: Number(event.target.value),
                 }),
@@ -260,7 +270,7 @@ export const HouseForm: FC<Props> = ({
             value={state.plotArea}
             onChange={(event) => {
               setState(
-                (prev): HouseUncheckedCreateInput => ({
+                (prev): IncludedHouse => ({
                   ...prev,
                   plotArea: Number(event.target.value),
                 }),
@@ -280,7 +290,7 @@ export const HouseForm: FC<Props> = ({
             value={state.landCategory}
             onChange={(type: string) => {
               setState(
-                (prev): HouseUncheckedCreateInput => ({
+                (prev): IncludedHouse => ({
                   ...prev,
                   landCategory: type as LandCategory,
                 }),
@@ -300,7 +310,7 @@ export const HouseForm: FC<Props> = ({
             value={state.finishing}
             onChange={(type: string) => {
               setState(
-                (prev): HouseUncheckedCreateInput => ({
+                (prev): IncludedHouse => ({
                   ...prev,
                   finishing: type as Finishing,
                 }),
@@ -318,7 +328,7 @@ export const HouseForm: FC<Props> = ({
             value={state.heating}
             onChange={(type: string) => {
               setState(
-                (prev): HouseUncheckedCreateInput => ({
+                (prev): IncludedHouse => ({
                   ...prev,
                   heating: type as Heating,
                 }),
@@ -333,7 +343,7 @@ export const HouseForm: FC<Props> = ({
             checked={state?.asphaltToHouse}
             onCheckedChange={(checked) => {
               setState(
-                (prev): HouseUncheckedCreateInput => ({
+                (prev): IncludedHouse => ({
                   ...prev,
                   asphaltToHouse: checked,
                 }),
@@ -349,7 +359,7 @@ export const HouseForm: FC<Props> = ({
             checked={state?.closedComplex}
             onCheckedChange={(checked) => {
               setState(
-                (prev): HouseUncheckedCreateInput => ({
+                (prev): IncludedHouse => ({
                   ...prev,
                   closedComplex: checked,
                 }),
@@ -370,7 +380,7 @@ export const HouseForm: FC<Props> = ({
             value={state.floor}
             onChange={(type: string) => {
               setState(
-                (prev): HouseUncheckedCreateInput => ({
+                (prev): IncludedHouse => ({
                   ...prev,
                   floor: type as FloorCount,
                 }),
@@ -390,7 +400,7 @@ export const HouseForm: FC<Props> = ({
             value={state.floor}
             onChange={(type: string) => {
               setState(
-                (prev): HouseUncheckedCreateInput => ({
+                (prev): IncludedHouse => ({
                   ...prev,
                   bedroom: type as BedroomCount,
                 }),
@@ -405,7 +415,7 @@ export const HouseForm: FC<Props> = ({
             checked={state?.separatedKitchenLiving}
             onCheckedChange={(checked) => {
               setState(
-                (prev): HouseUncheckedCreateInput => ({
+                (prev): IncludedHouse => ({
                   ...prev,
                   separatedKitchenLiving: checked,
                 }),
@@ -426,7 +436,7 @@ export const HouseForm: FC<Props> = ({
             value={state.floor}
             onChange={(type: string) => {
               setState(
-                (prev): HouseUncheckedCreateInput => ({
+                (prev): IncludedHouse => ({
                   ...prev,
                   bathroom: type as BathroomCount,
                 }),
@@ -446,7 +456,7 @@ export const HouseForm: FC<Props> = ({
             value={state?.facingMaterial ?? ""}
             onChange={(type: string) => {
               setState(
-                (prev): HouseUncheckedCreateInput => ({
+                (prev): IncludedHouse => ({
                   ...prev,
                   facingMaterial: type as FacingMaterial,
                 }),
@@ -466,7 +476,7 @@ export const HouseForm: FC<Props> = ({
             value={state.wallMaterial}
             onChange={(type: string) => {
               setState(
-                (prev): HouseUncheckedCreateInput => ({
+                (prev): IncludedHouse => ({
                   ...prev,
                   wallMaterial: type as WallMaterial,
                 }),
@@ -486,7 +496,7 @@ export const HouseForm: FC<Props> = ({
             value={state?.insulation ?? ""}
             onChange={(type: string) => {
               setState(
-                (prev): HouseUncheckedCreateInput => ({
+                (prev): IncludedHouse => ({
                   ...prev,
                   insulation: type as Insulation,
                 }),
@@ -501,7 +511,7 @@ export const HouseForm: FC<Props> = ({
             checked={state?.hasMinimumDownPayment}
             onCheckedChange={(checked) => {
               setState(
-                (prev): HouseUncheckedCreateInput => ({
+                (prev): IncludedHouse => ({
                   ...prev,
                   hasMinimumDownPayment: checked,
                 }),
@@ -520,7 +530,7 @@ export const HouseForm: FC<Props> = ({
             value={state.houseStatus}
             onChange={(type: string) => {
               setState(
-                (prev): HouseUncheckedCreateInput => ({
+                (prev): IncludedHouse => ({
                   ...prev,
                   houseStatus: type as HouseStatus,
                 }),
@@ -538,7 +548,7 @@ export const HouseForm: FC<Props> = ({
             value={state.saleStatus}
             onChange={(type: string) => {
               setState(
-                (prev): HouseUncheckedCreateInput => ({
+                (prev): IncludedHouse => ({
                   ...prev,
                   saleStatus: type as SaleStatus,
                 }),
@@ -548,12 +558,42 @@ export const HouseForm: FC<Props> = ({
         </div>
 
         <div className="grid gap-3">
+          <Label>Телефоны</Label>
+          <MultipleSelector
+            value={state.phones.map(({ phone }) => {
+              return { value: phone.id, label: phone.label };
+            })}
+            defaultOptions={phoneOptions}
+            placeholder="Выбери телефоны"
+            onChange={(event) => {
+              setState((prev) => {
+                const selectedPhones = phones.filter(({ id }) =>
+                  event.some(({ value }) => value === id),
+                );
+
+                return {
+                  ...prev,
+                  phones: selectedPhones.map(makeIncludedHousePhone),
+                };
+              });
+            }}
+            hideClearAllButton
+            hidePlaceholderWhenSelected
+            className="w-full"
+            emptyIndicator={
+              <p className="text-center text-sm">Результатов не найдено</p>
+            }
+          />
+        </div>
+
+        <div className="grid gap-3">
           <Label>Кадастровый номер</Label>
           <Input
+            placeholder="Кадастровый номер"
             value={state?.cadastralNumber ?? ""}
             onChange={(event) => {
               setState(
-                (prev): HouseUncheckedCreateInput => ({
+                (prev): IncludedHouse => ({
                   ...prev,
                   cadastralNumber: event.target.value,
                 }),
@@ -565,10 +605,11 @@ export const HouseForm: FC<Props> = ({
         <div className="grid gap-3">
           <Label>Ссылка на яндекс диск</Label>
           <Input
+            placeholder="Ссылка на яндекс диск"
             value={state?.yandexDiskLink ?? ""}
             onChange={(event) => {
               setState(
-                (prev): HouseUncheckedCreateInput => ({
+                (prev): IncludedHouse => ({
                   ...prev,
                   yandexDiskLink: event.target.value,
                 }),

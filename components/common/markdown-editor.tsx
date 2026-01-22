@@ -3,15 +3,14 @@
 import { useState } from "react";
 import { SerializedEditorState } from "lexical";
 import { Editor } from "@/components/blocks/editor-00/editor";
-import { InputJsonValue } from "@prisma/client/runtime/edge";
-import { NullableJsonNullValueInput } from "@/lib/generated/prisma/internal/prismaNamespace";
+import { JsonValue } from "@prisma/client/runtime/edge";
 
 interface Props {
-  initialMd?: NullableJsonNullValueInput | InputJsonValue;
+  initialMd?: JsonValue;
   onChange: (md: string) => void;
 }
 
-export const MarkdownEditor = ({ initialMd, onChange }: Props) => {
+export const MarkdownEditor = ({ initialMd = "", onChange }: Props) => {
   const initObject = initialMd ? JSON.parse(initialMd as string) : "";
 
   const initialValue = getInitValue(

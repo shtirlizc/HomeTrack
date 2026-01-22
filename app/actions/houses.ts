@@ -4,8 +4,9 @@ import { Prisma } from "@/lib/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { HouseUncheckedCreateInput } from "@/lib/generated/prisma/models/House";
+import { InputJsonValue } from "@prisma/client/runtime/edge";
 
-export type HouseWithPhones = Prisma.HouseGetPayload<{
+export type IncludedHouse = Prisma.HouseGetPayload<{
   include: {
     phones: {
       include: {
@@ -15,7 +16,7 @@ export type HouseWithPhones = Prisma.HouseGetPayload<{
   };
 }>;
 
-export async function getHouses(): Promise<HouseWithPhones[] | null> {
+export async function getHouses(): Promise<IncludedHouse[] | null> {
   try {
     return prisma.house.findMany({
       orderBy: { createdAt: "asc" },
@@ -34,18 +35,33 @@ export async function getHouses(): Promise<HouseWithPhones[] | null> {
   }
 }
 
-export async function createHouse(
-  prevData: any,
-  request: HouseUncheckedCreateInput,
-) {
-  const validateMessage = validateHouse(request);
+export async function createHouse(prevData: any, request: IncludedHouse) {
+  const data: HouseUncheckedCreateInput = {
+    ...request,
+    id: undefined,
+    description: request.description as InputJsonValue,
+    phones: undefined,
+    messengers: undefined,
+  };
+  const phoneIds = request.phones.map(({ phone }) => phone.id);
+
+  const validateMessage = validateHouse(data);
   if (validateMessage) {
     return validateMessage;
   }
 
   try {
     await prisma.house.create({
-      data: request,
+      data: {
+        ...data,
+        phones: {
+          create: phoneIds.map((phoneId) => ({
+            phone: {
+              connect: { id: phoneId },
+            },
+          })),
+        },
+      },
     });
 
     revalidatePath("/admin/houses");
@@ -55,23 +71,46 @@ export async function createHouse(
   }
 }
 
-export async function updateHouse(
-  prevData: any,
-  request: HouseUncheckedCreateInput,
-) {
+export async function updateHouse(prevData: any, request: IncludedHouse) {
   if (!request.id) {
     return { error: "Идентификатор отсутствует" };
   }
 
-  const validateMessage = validateHouse(request);
+  const data: HouseUncheckedCreateInput = {
+    ...request,
+    id: undefined,
+    description: request.description as InputJsonValue,
+    phones: undefined,
+    messengers: undefined,
+  };
+  const phoneIds = request.phones.map(({ phone }) => phone.id);
+
+  const validateMessage = validateHouse(data);
   if (validateMessage) {
     return validateMessage;
   }
 
   try {
-    await prisma.house.update({
-      where: { id: request.id },
-      data: request,
+    await prisma.$transaction(async (tx) => {
+      await tx.house.update({
+        where: { id: request.id },
+        data: {
+          ...data,
+          phones: {
+            deleteMany: {},
+          },
+        },
+      });
+
+      if (phoneIds.length > 0) {
+        await tx.housePhone.createMany({
+          data: phoneIds.map((phoneId) => ({
+            houseId: request.id,
+            phoneId,
+          })),
+          skipDuplicates: true,
+        });
+      }
     });
 
     revalidatePath("/admin/houses");

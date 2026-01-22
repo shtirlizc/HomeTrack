@@ -6,7 +6,6 @@ import {
   getCoreRowModel,
   useReactTable,
   type ColumnDef,
-  Column,
 } from "@tanstack/react-table";
 
 import {
@@ -32,93 +31,72 @@ import {
   SaleStatus,
   WallMaterial,
 } from "@/lib/types";
-import {
-  CSSProperties,
-  FC,
-  useActionState,
-  useEffect,
-  useTransition,
-} from "react";
+import { FC, useActionState, useEffect, useTransition } from "react";
 import {
   createHouse,
   deleteHouse,
-  HouseWithPhones,
+  IncludedHouse,
   updateHouse,
 } from "@/app/actions/houses";
 import { FieldDescription } from "@/components/ui/field";
 import { Edit, Trash2, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { HouseUncheckedCreateInput } from "@/lib/generated/prisma/models/House";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
+import { Phone } from "@/lib/generated/prisma/client";
 
 import { Dictionaries, HouseForm } from "./form";
+import { getCommonPinningStyles, makeIncludedHousePhone } from "./utils";
 
-const getCommonPinningStyles = (
-  column: Column<HouseWithPhones>,
-): CSSProperties => {
-  const isPinned = column.getIsPinned();
-  const isLastLeftPinnedColumn =
-    isPinned === "left" && column.getIsLastColumn("left");
-  const isFirstRightPinnedColumn =
-    isPinned === "right" && column.getIsFirstColumn("right");
-
-  return {
-    boxShadow: isLastLeftPinnedColumn
-      ? "-4px 0 4px -4px gray inset"
-      : isFirstRightPinnedColumn
-        ? "4px 0 4px -4px gray inset"
-        : undefined,
-    left: isPinned === "left" ? `${column.getStart("left")}px` : undefined,
-    right: isPinned === "right" ? `${column.getAfter("right")}px` : undefined,
-    opacity: isPinned ? 0.95 : 1,
-    position: isPinned ? "sticky" : "relative",
-    width: column.getSize(),
-    zIndex: isPinned ? 1 : 0,
-  };
-};
-
-const defaultCreateState: HouseUncheckedCreateInput = {
-  name: "",
-  description: "",
-  districtId: "",
-  type: HouseType.LandPlot,
-  price: 0,
-  houseArea: 0,
-  plotArea: 0,
-  landCategory: LandCategory.IZHS,
-  finishing: Finishing.CleanFinish,
-  heating: Heating.Gas,
-  asphaltToHouse: false,
-  closedComplex: false,
-  floor: FloorCount.One,
-  bedroom: BedroomCount.One,
-  separatedKitchenLiving: false,
-  bathroom: BathroomCount.One,
-  facingMaterial: FacingMaterial.BarkBeetlePlaster,
-  wallMaterial: WallMaterial.Wood,
-  insulation: Insulation.FoamPlastic,
-  hasMinimumDownPayment: true,
-  houseStatus: HouseStatus.BuiltHouse,
-  saleStatus: SaleStatus.Available,
-  latitude: 0,
-  longitude: 0,
-  developerId: "",
-  cadastralNumber: "",
-  yandexDiskLink: "",
-  isActive: true,
-};
 const createInitialState = { error: "", success: false, fieldName: "" };
 const updateInitialState = { error: "", success: false, fieldName: "" };
 const deleteInitialState = { error: "" };
 
 interface Props {
-  houses: HouseWithPhones[];
+  houses: IncludedHouse[];
   dictionaries: Dictionaries;
+  phones: Phone[];
 }
 
-export const HousesTable: FC<Props> = ({ houses, dictionaries }) => {
+export const HousesTable: FC<Props> = ({ houses, dictionaries, phones }) => {
+  const defaultCreateState: IncludedHouse = {
+    id: "",
+    name: "",
+    description: "",
+    districtId: "",
+    type: HouseType.LandPlot,
+    price: 0,
+    houseArea: 0,
+    plotArea: 0,
+    landCategory: LandCategory.IZHS,
+    finishing: Finishing.CleanFinish,
+    heating: Heating.Gas,
+    asphaltToHouse: false,
+    closedComplex: false,
+    floor: FloorCount.One,
+    bedroom: BedroomCount.One,
+    separatedKitchenLiving: false,
+    bathroom: BathroomCount.One,
+    facingMaterial: FacingMaterial.BarkBeetlePlaster,
+    wallMaterial: WallMaterial.Wood,
+    insulation: Insulation.FoamPlastic,
+    hasMinimumDownPayment: true,
+    houseStatus: HouseStatus.BuiltHouse,
+    saleStatus: SaleStatus.Available,
+    latitude: 0,
+    longitude: 0,
+    developerId: "",
+    phones: phones
+      .filter(({ isDefault }) => isDefault)
+      .map(makeIncludedHousePhone),
+    cadastralNumber: "",
+    yandexDiskLink: "",
+    isActive: true,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  };
+
   const [isPending, startTransition] = useTransition();
 
   const [createState, createFormAction] = useActionState(
@@ -136,22 +114,22 @@ export const HousesTable: FC<Props> = ({ houses, dictionaries }) => {
 
   const [isCreateMode, setIsCreateMode] = React.useState(false);
   const [creatingValues, setCreatingValues] =
-    React.useState<HouseUncheckedCreateInput>(defaultCreateState);
-  const handleCreate = async (data: HouseUncheckedCreateInput) => {
+    React.useState<IncludedHouse>(defaultCreateState);
+  const handleCreate = async (data: IncludedHouse) => {
     startTransition(async () => {
       createFormAction(data);
     });
   };
 
   const [editingValues, setEditingValues] =
-    React.useState<HouseUncheckedCreateInput | null>(null);
-  const handleEdit = (house: HouseUncheckedCreateInput) => {
+    React.useState<IncludedHouse | null>(null);
+  const handleEdit = (house: IncludedHouse) => {
     setEditingValues(house);
   };
   const handleCancelEdit = () => {
     setEditingValues(null);
   };
-  const handleSaveEdit = async (house: HouseUncheckedCreateInput) => {
+  const handleSaveEdit = async (house: IncludedHouse) => {
     startTransition(async () => {
       updateFormAction(house);
     });
@@ -163,7 +141,7 @@ export const HousesTable: FC<Props> = ({ houses, dictionaries }) => {
     });
   };
 
-  const columns: ColumnDef<HouseWithPhones>[] = [
+  const columns: ColumnDef<IncludedHouse>[] = [
     {
       accessorKey: "name",
       header: "Название объекта",
@@ -179,9 +157,8 @@ export const HousesTable: FC<Props> = ({ houses, dictionaries }) => {
           return null;
         }
 
-        const firstLineText = initObject.root?.children
-          .at(0)
-          .children.at(0).text;
+        const firstLineText =
+          initObject.root?.children.at(0).children.at(0)?.text ?? "";
 
         return (
           <div className="max-w-50 overflow-hidden text-ellipsis">
@@ -372,7 +349,7 @@ export const HousesTable: FC<Props> = ({ houses, dictionaries }) => {
       header: "Телефоны",
       cell: ({ row }) => {
         return (
-          <div className="flex justify-center gap-1">
+          <div className="flex gap-1">
             {row.original.phones.map(({ id, phone }) => (
               <Badge key={id}>{phone.label}</Badge>
             ))}
@@ -422,7 +399,7 @@ export const HousesTable: FC<Props> = ({ houses, dictionaries }) => {
               size="icon"
               disabled={isPending}
               onClick={() => {
-                handleEdit(row.original as HouseUncheckedCreateInput);
+                handleEdit(row.original);
               }}
             >
               <Edit className="h-[1.2rem] w-[1.2rem]" />
@@ -573,6 +550,7 @@ export const HousesTable: FC<Props> = ({ houses, dictionaries }) => {
               }}
               onSave={handleCreate}
               dictionaries={dictionaries}
+              phones={phones}
             />
           )}
         </DialogContent>
@@ -597,6 +575,7 @@ export const HousesTable: FC<Props> = ({ houses, dictionaries }) => {
               onCancel={handleCancelEdit}
               onSave={handleSaveEdit}
               dictionaries={dictionaries}
+              phones={phones}
             />
           )}
         </DialogContent>
