@@ -1,4 +1,4 @@
-import { Phone } from "@/lib/generated/prisma/client";
+import { Messenger, Phone } from "@/lib/generated/prisma/client";
 import { Column } from "@tanstack/react-table";
 import { IncludedHouse } from "@/app/actions/houses";
 import { CSSProperties } from "react";
@@ -32,6 +32,15 @@ export const makeIncludedHousePhone = (phone: Phone) => ({
   id: "",
   houseId: "",
   phoneId: "",
+  createdAt: new Date(),
+  updatedAt: new Date(),
+});
+
+export const makeIncludedHouseMessenger = (messenger: Messenger) => ({
+  messenger,
+  id: "",
+  houseId: "",
+  messengerId: "",
   createdAt: new Date(),
   updatedAt: new Date(),
 });

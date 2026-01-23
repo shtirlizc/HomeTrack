@@ -44,10 +44,14 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
-import { Phone } from "@/lib/generated/prisma/client";
+import { Messenger, Phone } from "@/lib/generated/prisma/client";
 
 import { Dictionaries, HouseForm } from "./form";
-import { getCommonPinningStyles, makeIncludedHousePhone } from "./utils";
+import {
+  getCommonPinningStyles,
+  makeIncludedHouseMessenger,
+  makeIncludedHousePhone,
+} from "./utils";
 
 const createInitialState = { error: "", success: false, fieldName: "" };
 const updateInitialState = { error: "", success: false, fieldName: "" };
@@ -57,9 +61,15 @@ interface Props {
   houses: IncludedHouse[];
   dictionaries: Dictionaries;
   phones: Phone[];
+  messengers: Messenger[];
 }
 
-export const HousesTable: FC<Props> = ({ houses, dictionaries, phones }) => {
+export const HousesTable: FC<Props> = ({
+  houses,
+  dictionaries,
+  phones,
+  messengers,
+}) => {
   const defaultCreateState: IncludedHouse = {
     id: "",
     name: "",
@@ -90,6 +100,9 @@ export const HousesTable: FC<Props> = ({ houses, dictionaries, phones }) => {
     phones: phones
       .filter(({ isDefault }) => isDefault)
       .map(makeIncludedHousePhone),
+    messengers: messengers
+      .filter(({ isDefault }) => isDefault)
+      .map(makeIncludedHouseMessenger),
     cadastralNumber: "",
     yandexDiskLink: "",
     isActive: true,
@@ -358,6 +371,19 @@ export const HousesTable: FC<Props> = ({ houses, dictionaries, phones }) => {
       },
     },
     {
+      accessorKey: "messengers",
+      header: "Мессенджеры",
+      cell: ({ row }) => {
+        return (
+          <div className="flex gap-1">
+            {row.original.messengers.map(({ id, messenger }) => (
+              <Badge key={id}>{messenger.label}</Badge>
+            ))}
+          </div>
+        );
+      },
+    },
+    {
       accessorKey: "yandexDiskLink",
       header: "Ссылка на яндекс диск",
       cell: ({ row }) => {
@@ -429,6 +455,7 @@ export const HousesTable: FC<Props> = ({ houses, dictionaries, phones }) => {
     getCoreRowModel: getCoreRowModel(),
     initialState: {
       columnPinning: {
+        left: ["name"],
         right: ["_actions"],
       },
     },
@@ -551,6 +578,7 @@ export const HousesTable: FC<Props> = ({ houses, dictionaries, phones }) => {
               onSave={handleCreate}
               dictionaries={dictionaries}
               phones={phones}
+              messengers={messengers}
             />
           )}
         </DialogContent>
@@ -576,6 +604,7 @@ export const HousesTable: FC<Props> = ({ houses, dictionaries, phones }) => {
               onSave={handleSaveEdit}
               dictionaries={dictionaries}
               phones={phones}
+              messengers={messengers}
             />
           )}
         </DialogContent>

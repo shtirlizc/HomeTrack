@@ -14,7 +14,12 @@ import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import * as React from "react";
 import { SelectField } from "@/components/admin/houses/select-field";
-import { Developer, District, Phone } from "@/lib/generated/prisma/client";
+import {
+  Developer,
+  District,
+  Messenger,
+  Phone,
+} from "@/lib/generated/prisma/client";
 import {
   BathroomCount,
   BedroomCount,
@@ -36,7 +41,7 @@ import { MarkdownEditor } from "@/components/common/markdown-editor";
 import MultipleSelector from "@/components/ui/multi-select";
 import { IncludedHouse } from "@/app/actions/houses";
 
-import { makeIncludedHousePhone } from "./utils";
+import { makeIncludedHouseMessenger, makeIncludedHousePhone } from "./utils";
 
 const INIT_COORDS: Coordinates = [56.10962394067204, 54.62695042147847];
 
@@ -60,9 +65,13 @@ interface Props {
   onSave: (data: IncludedHouse) => void;
   dictionaries: Dictionaries;
   phones: Phone[];
+  messengers: Messenger[];
 }
 
-const makeOptionItem = ({ id, label }: Phone) => ({ value: id, label });
+const makeOptionItem = ({ id, label }: Phone | Messenger) => ({
+  value: id,
+  label,
+});
 
 export const HouseForm: FC<Props> = ({
   formTitle,
@@ -73,8 +82,10 @@ export const HouseForm: FC<Props> = ({
   onSave,
   dictionaries,
   phones,
+  messengers,
 }) => {
   const phoneOptions = phones.map(makeOptionItem);
+  const messengerOptions = messengers.map(makeOptionItem);
 
   const [state, setState] = useState<IncludedHouse>(house);
 
@@ -574,6 +585,37 @@ export const HouseForm: FC<Props> = ({
                 return {
                   ...prev,
                   phones: selectedPhones.map(makeIncludedHousePhone),
+                };
+              });
+            }}
+            hideClearAllButton
+            hidePlaceholderWhenSelected
+            className="w-full"
+            emptyIndicator={
+              <p className="text-center text-sm">Результатов не найдено</p>
+            }
+          />
+        </div>
+
+        <div className="grid gap-3">
+          <Label>Мессенджеры</Label>
+          <MultipleSelector
+            value={state.messengers.map(({ messenger }) => {
+              return { value: messenger.id, label: messenger.label };
+            })}
+            defaultOptions={messengerOptions}
+            placeholder="Выбери мессенджеры"
+            onChange={(event) => {
+              setState((prev) => {
+                const selectedMessengers = messengers.filter(({ id }) =>
+                  event.some(({ value }) => value === id),
+                );
+
+                return {
+                  ...prev,
+                  messengers: selectedMessengers.map(
+                    makeIncludedHouseMessenger,
+                  ),
                 };
               });
             }}

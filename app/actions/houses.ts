@@ -13,6 +13,11 @@ export type IncludedHouse = Prisma.HouseGetPayload<{
         phone: true;
       };
     };
+    messengers: {
+      include: {
+        messenger: true;
+      };
+    };
   };
 }>;
 
@@ -24,6 +29,11 @@ export async function getHouses(): Promise<IncludedHouse[] | null> {
         phones: {
           include: {
             phone: true,
+          },
+        },
+        messengers: {
+          include: {
+            messenger: true,
           },
         },
       },
@@ -44,6 +54,7 @@ export async function createHouse(prevData: any, request: IncludedHouse) {
     messengers: undefined,
   };
   const phoneIds = request.phones.map(({ phone }) => phone.id);
+  const messengerIds = request.messengers.map(({ messenger }) => messenger.id);
 
   const validateMessage = validateHouse(data);
   if (validateMessage) {
@@ -58,6 +69,13 @@ export async function createHouse(prevData: any, request: IncludedHouse) {
           create: phoneIds.map((phoneId) => ({
             phone: {
               connect: { id: phoneId },
+            },
+          })),
+        },
+        messengers: {
+          create: messengerIds.map((messengerId) => ({
+            messenger: {
+              connect: { id: messengerId },
             },
           })),
         },
@@ -84,6 +102,7 @@ export async function updateHouse(prevData: any, request: IncludedHouse) {
     messengers: undefined,
   };
   const phoneIds = request.phones.map(({ phone }) => phone.id);
+  const messengerIds = request.messengers.map(({ messenger }) => messenger.id);
 
   const validateMessage = validateHouse(data);
   if (validateMessage) {
@@ -99,6 +118,9 @@ export async function updateHouse(prevData: any, request: IncludedHouse) {
           phones: {
             deleteMany: {},
           },
+          messengers: {
+            deleteMany: {},
+          },
         },
       });
 
@@ -107,6 +129,15 @@ export async function updateHouse(prevData: any, request: IncludedHouse) {
           data: phoneIds.map((phoneId) => ({
             houseId: request.id,
             phoneId,
+          })),
+          skipDuplicates: true,
+        });
+      }
+      if (messengerIds.length > 0) {
+        await tx.houseMessenger.createMany({
+          data: messengerIds.map((messengerId) => ({
+            houseId: request.id,
+            messengerId,
           })),
           skipDuplicates: true,
         });
