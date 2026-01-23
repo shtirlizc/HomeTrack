@@ -39,11 +39,12 @@ import {
   updateHouse,
 } from "@/app/actions/houses";
 import { FieldDescription } from "@/components/ui/field";
-import { Edit, Trash2, Plus } from "lucide-react";
+import { Edit, Trash2, Plus, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
+import Link from "next/link";
 
 import { Dictionaries, HouseForm } from "./form";
 import {
@@ -421,6 +422,13 @@ export const HousesTable: FC<Props> = ({
       cell: ({ row }) => {
         return (
           <div className="flex justify-end gap-2 sticky right-0">
+            <Link href={`/houses/${row.original.id}`} target="_blank">
+              <Button variant="outline" size="icon" disabled={isPending}>
+                <Eye className="h-[1.2rem] w-[1.2rem]" />
+                <span className="sr-only">Смотреть</span>
+              </Button>
+            </Link>
+
             <Button
               variant="outline"
               size="icon"
