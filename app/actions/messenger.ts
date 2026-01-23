@@ -2,8 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
-import { Messenger } from "@/lib/generated/prisma/client";
-import { MessengerCreateInput } from "@/lib/generated/prisma/models/Messenger";
+import { Messenger, Prisma } from "@prisma/client";
+import MessengerCreateInput = Prisma.MessengerCreateInput;
 
 export async function getMessengers() {
   try {

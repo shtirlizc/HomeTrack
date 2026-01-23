@@ -1,10 +1,10 @@
 "use server";
 
-import { Prisma } from "@/lib/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
-import { HouseUncheckedCreateInput } from "@/lib/generated/prisma/models/House";
 import { InputJsonValue } from "@prisma/client/runtime/edge";
+import { Prisma } from "@prisma/client";
+import HouseUncheckedCreateInput = Prisma.HouseUncheckedCreateInput;
 
 export type IncludedHouse = Prisma.HouseGetPayload<{
   include: {
@@ -110,7 +110,7 @@ export async function updateHouse(prevData: any, request: IncludedHouse) {
   }
 
   try {
-    await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx: any) => {
       await tx.house.update({
         where: { id: request.id },
         data: {

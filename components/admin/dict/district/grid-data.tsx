@@ -16,7 +16,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { District } from "@/lib/generated/prisma/client";
+
 import { FC, useActionState, useEffect, useTransition } from "react";
 import {
   createDistrict,
@@ -27,8 +27,10 @@ import { FieldDescription } from "@/components/ui/field";
 import { Edit, Trash2, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { DistrictCreateInput } from "@/lib/generated/prisma/models/District";
 import { DistrictForm } from "./form";
+
+import { District, Prisma } from "@prisma/client";
+import DistrictCreateInput = Prisma.DistrictCreateInput;
 
 const defaultCreateState: DistrictCreateInput = { title: "", description: "" };
 const createInitialState = { error: "", success: false };

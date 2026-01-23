@@ -16,7 +16,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Developer } from "@/lib/generated/prisma/client";
+
 import { FC, useActionState, useEffect, useTransition } from "react";
 import {
   createDeveloper,
@@ -27,8 +27,11 @@ import { FieldDescription } from "@/components/ui/field";
 import { Edit, Trash2, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { DeveloperCreateInput } from "@/lib/generated/prisma/models/Developer";
+
 import { DeveloperForm } from "./form";
+
+import { Developer, Prisma } from "@prisma/client";
+import DeveloperCreateInput = Prisma.DeveloperCreateInput;
 
 const defaultCreateState: DeveloperCreateInput = {
   title: "",

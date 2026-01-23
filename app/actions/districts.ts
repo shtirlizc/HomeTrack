@@ -2,8 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
-import { District } from "@/lib/generated/prisma/client";
-import { DistrictCreateInput } from "@/lib/generated/prisma/models/District";
+import { District, Prisma } from "@prisma/client";
+import DistrictCreateInput = Prisma.DistrictCreateInput;
 
 export async function getDistricts() {
   try {

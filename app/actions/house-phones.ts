@@ -1,9 +1,8 @@
 "use server";
 
-import { HousePhone } from "@/lib/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
-
-import { HousePhoneUncheckedCreateInput } from "@/lib/generated/prisma/models/HousePhone";
+import { HousePhone, Prisma } from "@prisma/client";
+import HousePhoneUncheckedCreateInput = Prisma.HousePhoneUncheckedCreateInput;
 
 export async function getHousePhones() {
   try {

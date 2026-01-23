@@ -1,7 +1,7 @@
-import { Messenger, Phone } from "@/lib/generated/prisma/client";
 import { Column } from "@tanstack/react-table";
 import { IncludedHouse } from "@/app/actions/houses";
 import { CSSProperties } from "react";
+import { Messenger, Phone } from "@prisma/client";
 
 export const getCommonPinningStyles = (
   column: Column<IncludedHouse>,

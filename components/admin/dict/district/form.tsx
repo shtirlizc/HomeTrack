@@ -13,7 +13,9 @@ import { FieldDescription } from "@/components/ui/field";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import * as React from "react";
-import { DistrictCreateInput } from "@/lib/generated/prisma/models/District";
+
+import { Prisma } from "@prisma/client";
+import DistrictCreateInput = Prisma.DistrictCreateInput;
 
 interface Props {
   formTitle: string;

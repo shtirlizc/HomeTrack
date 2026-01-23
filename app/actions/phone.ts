@@ -2,8 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
-import { Phone } from "@/lib/generated/prisma/client";
-import { PhoneCreateInput } from "@/lib/generated/prisma/models/Phone";
+import { Phone, Prisma } from "@prisma/client";
+import PhoneCreateInput = Prisma.PhoneCreateInput;
 
 export async function getPhones() {
   try {

@@ -16,7 +16,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Messenger } from "@/lib/generated/prisma/client";
+
 import { FC, useActionState, useEffect, useTransition } from "react";
 import {
   createMessenger,
@@ -27,9 +27,11 @@ import { FieldDescription } from "@/components/ui/field";
 import { Edit, Trash2, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { MessengerCreateInput } from "@/lib/generated/prisma/models/Messenger";
+
 import { MessengerForm } from "./form";
 import { Switch } from "@/components/ui/switch";
+import { Messenger, Prisma } from "@prisma/client";
+import MessengerCreateInput = Prisma.MessengerCreateInput;
 
 const defaultCreateState: MessengerCreateInput = {
   link: "",

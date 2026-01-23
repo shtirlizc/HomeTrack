@@ -16,16 +16,18 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Phone } from "@/lib/generated/prisma/client";
+
 import { FC, useActionState, useEffect, useTransition } from "react";
 import { createPhone, deletePhone, updatePhone } from "@/app/actions/phone";
 import { FieldDescription } from "@/components/ui/field";
 import { Edit, Trash2, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { PhoneCreateInput } from "@/lib/generated/prisma/models/Phone";
+
 import { PhoneForm } from "./form";
 import { Switch } from "@/components/ui/switch";
+import { Phone, Prisma } from "@prisma/client";
+import PhoneCreateInput = Prisma.PhoneCreateInput;
 
 const defaultCreateState: PhoneCreateInput = {
   phone: "",

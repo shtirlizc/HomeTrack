@@ -7,7 +7,7 @@ import {
   useReactTable,
   type ColumnDef,
 } from "@tanstack/react-table";
-
+import { Messenger, Phone } from "@prisma/client";
 import {
   Table,
   TableBody,
@@ -44,7 +44,6 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
-import { Messenger, Phone } from "@/lib/generated/prisma/client";
 
 import { Dictionaries, HouseForm } from "./form";
 import {

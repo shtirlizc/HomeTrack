@@ -2,8 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
-import { Developer } from "@/lib/generated/prisma/client";
-import { DeveloperCreateInput } from "@/lib/generated/prisma/models/Developer";
+import { Developer, Prisma } from "@prisma/client";
+import DeveloperCreateInput = Prisma.DeveloperCreateInput;
 
 export async function getDevelopers() {
   try {

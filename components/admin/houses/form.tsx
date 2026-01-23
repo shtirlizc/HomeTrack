@@ -13,13 +13,8 @@ import { FieldDescription } from "@/components/ui/field";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import * as React from "react";
+import { Developer, District, Messenger, Phone } from "@prisma/client";
 import { SelectField } from "@/components/admin/houses/select-field";
-import {
-  Developer,
-  District,
-  Messenger,
-  Phone,
-} from "@/lib/generated/prisma/client";
 import {
   BathroomCount,
   BedroomCount,

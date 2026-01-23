@@ -13,8 +13,9 @@ import { FieldDescription } from "@/components/ui/field";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import * as React from "react";
-import { MessengerCreateInput } from "@/lib/generated/prisma/models/Messenger";
 import { Switch } from "@/components/ui/switch";
+import { Prisma } from "@prisma/client";
+import MessengerCreateInput = Prisma.MessengerCreateInput;
 
 interface Props {
   formTitle: string;

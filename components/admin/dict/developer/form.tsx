@@ -13,7 +13,8 @@ import { FieldDescription } from "@/components/ui/field";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import * as React from "react";
-import { DeveloperCreateInput } from "@/lib/generated/prisma/models/Developer";
+import { Prisma } from "@prisma/client";
+import DeveloperCreateInput = Prisma.DeveloperCreateInput;
 
 interface Props {
   formTitle: string;
