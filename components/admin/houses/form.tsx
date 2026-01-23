@@ -403,7 +403,7 @@ export const HouseForm: FC<Props> = ({
                 return { id: key, name: value };
               },
             )}
-            value={state.floor}
+            value={state.bedroom}
             onChange={(type: string) => {
               setState(
                 (prev): IncludedHouse => ({
@@ -439,7 +439,7 @@ export const HouseForm: FC<Props> = ({
                 return { id: key, name: value };
               },
             )}
-            value={state.floor}
+            value={state.bathroom}
             onChange={(type: string) => {
               setState(
                 (prev): IncludedHouse => ({

@@ -180,6 +180,15 @@ export const HousesTable: FC<Props> = ({
       },
     },
     {
+      accessorKey: "isActive",
+      header: "Показывать",
+      cell: ({ row }) => {
+        const id = `is-default-${row.id}`;
+
+        return <Switch id={id} checked={row.original.isActive} disabled />;
+      },
+    },
+    {
       accessorKey: "districtId",
       header: "Район",
       cell: ({ row }) => {
@@ -393,23 +402,16 @@ export const HousesTable: FC<Props> = ({
         }
 
         return (
-          <a
-            href={link}
-            target="_blank"
-            className="font-medium text-fg-brand underline hover:no-underline"
-          >
-            {link}
-          </a>
+          <div className="max-w-60 overflow-hidden text-ellipsis">
+            <a
+              href={link}
+              target="_blank"
+              className="font-medium text-fg-brand underline hover:no-underline"
+            >
+              {link}
+            </a>
+          </div>
         );
-      },
-    },
-    {
-      accessorKey: "isActive",
-      header: "Показывать покупателям",
-      cell: ({ row }) => {
-        const id = `is-default-${row.id}`;
-
-        return <Switch id={id} checked={row.original.isActive} disabled />;
       },
     },
     {

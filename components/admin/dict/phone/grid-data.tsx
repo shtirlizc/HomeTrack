@@ -162,7 +162,7 @@ export const PhonesTable: FC<Props> = ({ phones }) => {
   return (
     <div className="w-full">
       <div className="flex items-center gap-4 mb-4">
-        <h3 className="text-xl font-semibold">Мессенджеры</h3>
+        <h3 className="text-xl font-semibold">Телефоны</h3>
         <Button
           variant="outline"
           size="icon"
