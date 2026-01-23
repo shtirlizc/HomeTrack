@@ -19,8 +19,6 @@ interface Props {
 }
 
 export const MainList = ({ houses, districts }: Props) => {
-  console.log("houses", houses);
-
   return (
     <div className="flex flex-wrap justify-start py-5 gap-4">
       {houses.map(({ id, name, districtId }) => (
