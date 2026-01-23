@@ -7,12 +7,16 @@ import { JsonValue } from "@prisma/client/runtime/edge";
 
 interface Props {
   initialMd?: JsonValue;
-  onChange: (md: string) => void;
+  onChange?: (md: string) => void;
+  isEditable?: boolean;
 }
 
-export const MarkdownEditor = ({ initialMd = "", onChange }: Props) => {
+export const MarkdownEditor = ({
+  initialMd = "",
+  onChange,
+  isEditable = false,
+}: Props) => {
   const initObject = initialMd ? JSON.parse(initialMd as string) : "";
-
   const initialValue = getInitValue(
     initObject,
   ) as unknown as SerializedEditorState;
@@ -21,14 +25,25 @@ export const MarkdownEditor = ({ initialMd = "", onChange }: Props) => {
     useState<SerializedEditorState>(initialValue);
 
   const handleBlur = () => {
-    onChange(JSON.stringify(editorState));
+    if (onChange) {
+      onChange(JSON.stringify(editorState));
+    }
   };
+
+  if (!isEditable && !initObject) {
+    return null;
+  }
+
+  if (!isEditable) {
+    return <Editor editorSerializedState={editorState} editable={false} />;
+  }
 
   return (
     <div onBlur={handleBlur}>
       <Editor
         editorSerializedState={editorState}
         onSerializedChange={(value) => setEditorState(value)}
+        editable={isEditable}
       />
     </div>
   );

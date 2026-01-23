@@ -1,40 +1,42 @@
-"use client"
+"use client";
 
 import {
   InitialConfigType,
   LexicalComposer,
-} from "@lexical/react/LexicalComposer"
-import { OnChangePlugin } from "@lexical/react/LexicalOnChangePlugin"
-import { EditorState, SerializedEditorState } from "lexical"
+} from "@lexical/react/LexicalComposer";
+import { OnChangePlugin } from "@lexical/react/LexicalOnChangePlugin";
+import { EditorState, SerializedEditorState } from "lexical";
 
-import { editorTheme } from "@/components/editor/themes/editor-theme"
-import { TooltipProvider } from "@/components/ui/tooltip"
+import { editorTheme } from "@/components/editor/themes/editor-theme";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
-import { nodes } from "./nodes"
-import { Plugins } from "./plugins"
+import { nodes } from "./nodes";
+import { Plugins } from "./plugins";
 
 const editorConfig: InitialConfigType = {
   namespace: "Editor",
   theme: editorTheme,
   nodes,
   onError: (error: Error) => {
-    console.error(error)
+    console.error(error);
   },
-}
+};
 
 export function Editor({
   editorState,
   editorSerializedState,
   onChange,
   onSerializedChange,
+  editable,
 }: {
-  editorState?: EditorState
-  editorSerializedState?: SerializedEditorState
-  onChange?: (editorState: EditorState) => void
-  onSerializedChange?: (editorSerializedState: SerializedEditorState) => void
+  editorState?: EditorState;
+  editorSerializedState?: SerializedEditorState;
+  onChange?: (editorState: EditorState) => void;
+  onSerializedChange?: (editorSerializedState: SerializedEditorState) => void;
+  editable: boolean;
 }) {
   return (
-    <div className="bg-background overflow-hidden rounded-lg border shadow">
+    <div className="bg-background overflow-hidden rounded-lg border">
       <LexicalComposer
         initialConfig={{
           ...editorConfig,
@@ -42,6 +44,7 @@ export function Editor({
           ...(editorSerializedState
             ? { editorState: JSON.stringify(editorSerializedState) }
             : {}),
+          editable,
         }}
       >
         <TooltipProvider>
@@ -50,12 +53,12 @@ export function Editor({
           <OnChangePlugin
             ignoreSelectionChange={true}
             onChange={(editorState) => {
-              onChange?.(editorState)
-              onSerializedChange?.(editorState.toJSON())
+              onChange?.(editorState);
+              onSerializedChange?.(editorState.toJSON());
             }}
           />
         </TooltipProvider>
       </LexicalComposer>
     </div>
-  )
+  );
 }

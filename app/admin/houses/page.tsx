@@ -8,11 +8,7 @@ import { getPhones } from "@/app/actions/phone";
 import { getMessengers } from "@/app/actions/messenger";
 
 export default async function HousesPage() {
-  const houses = await getHouses();
-  if (!houses) {
-    return null;
-  }
-
+  const houses = (await getHouses()) ?? [];
   const districts = (await getDistricts()) ?? [];
   const developers = (await getDevelopers()) ?? [];
   const phones = (await getPhones()) ?? [];
