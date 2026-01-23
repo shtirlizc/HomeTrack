@@ -1,9 +1,17 @@
 "use client";
 
 import { Badge } from "@/components/ui/badge";
-import { Card, CardAction, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardAction,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { IncludedHouse } from "@/app/actions/houses";
 import { District } from "@prisma/client";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 interface Props {
   houses: IncludedHouse[];
@@ -25,6 +33,11 @@ export const MainList = ({ houses, districts }: Props) => {
             </CardAction>
             <CardTitle>{name}</CardTitle>
           </CardHeader>
+          <CardFooter>
+            <Link href={`/houses/${id}`} className="w-full">
+              <Button className="w-full">Посмотреть</Button>
+            </Link>
+          </CardFooter>
         </Card>
       ))}
     </div>

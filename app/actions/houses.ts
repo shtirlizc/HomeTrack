@@ -45,6 +45,32 @@ export async function getHouses(): Promise<IncludedHouse[] | null> {
   }
 }
 
+export async function getHouse(id: string): Promise<IncludedHouse | null> {
+  try {
+    return prisma.house.findUnique({
+      where: {
+        id,
+      },
+      include: {
+        phones: {
+          include: {
+            phone: true,
+          },
+        },
+        messengers: {
+          include: {
+            messenger: true,
+          },
+        },
+      },
+    });
+  } catch (error) {
+    console.error(error);
+
+    return null;
+  }
+}
+
 export async function createHouse(prevData: any, request: IncludedHouse) {
   const data: HouseUncheckedCreateInput = {
     ...request,
