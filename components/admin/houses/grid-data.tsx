@@ -73,6 +73,7 @@ export const HousesTable: FC<Props> = ({
 }) => {
   const defaultCreateState: IncludedHouse = {
     id: "",
+    humanCode: "",
     name: "",
     description: "",
     districtId: "",
@@ -161,6 +162,10 @@ export const HousesTable: FC<Props> = ({
     {
       accessorKey: "name",
       header: "Название объекта",
+    },
+    {
+      accessorKey: "humanCode",
+      header: "Артикул",
     },
     {
       accessorKey: "description",

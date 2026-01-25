@@ -1,5 +1,6 @@
 "use server";
 
+import { customAlphabet } from "nanoid";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { InputJsonValue } from "@prisma/client/runtime/edge";
@@ -87,31 +88,39 @@ export async function createHouse(prevData: any, request: IncludedHouse) {
     return validateMessage;
   }
 
-  try {
-    await prisma.house.create({
-      data: {
-        ...data,
-        phones: {
-          create: phoneIds.map((phoneId) => ({
-            phone: {
-              connect: { id: phoneId },
-            },
-          })),
-        },
-        messengers: {
-          create: messengerIds.map((messengerId) => ({
-            messenger: {
-              connect: { id: messengerId },
-            },
-          })),
-        },
-      },
-    });
+  while (true) {
+    const code = generateCode();
 
-    revalidatePath("/admin/houses");
-    return { success: true };
-  } catch (error: any) {
-    return error?.message ?? "Неизвестная ошибка";
+    try {
+      await prisma.house.create({
+        data: {
+          ...data,
+          humanCode: code,
+          phones: {
+            create: phoneIds.map((phoneId) => ({
+              phone: {
+                connect: { id: phoneId },
+              },
+            })),
+          },
+          messengers: {
+            create: messengerIds.map((messengerId) => ({
+              messenger: {
+                connect: { id: messengerId },
+              },
+            })),
+          },
+        },
+      });
+
+      revalidatePath("/admin/houses");
+      return { success: true };
+    } catch (error: any) {
+      if (isUniqueConstraintError(error)) {
+        continue;
+      }
+      return error?.message ?? "Неизвестная ошибка";
+    }
   }
 }
 
@@ -277,4 +286,18 @@ function validateHouse(house: HouseUncheckedCreateInput) {
   }
 
   return null;
+}
+
+const generateCode = () =>
+  `${customAlphabet("ABCDEFGHJKLMNPQRSTUVWXYZ23456789", 4)()}-${customAlphabet("ABCDEFGHJKLMNPQRSTUVWXYZ23456789", 4)()}`;
+
+function isUniqueConstraintError(
+  e: unknown,
+): e is Prisma.PrismaClientKnownRequestError {
+  return (
+    e instanceof Prisma.PrismaClientKnownRequestError &&
+    e.code === "P2002" &&
+    Array.isArray(e.meta?.target) &&
+    e.meta.target.includes("humanCode")
+  );
 }

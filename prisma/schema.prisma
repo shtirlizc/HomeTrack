@@ -158,6 +158,7 @@ enum SaleStatus {
 
 model House {
   id                     String          @id @default(uuid())
+  humanCode              String          @unique
   name                   String
   description            Json?
   type                   HouseType
