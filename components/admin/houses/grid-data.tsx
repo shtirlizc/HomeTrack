@@ -7,6 +7,7 @@ import {
   useReactTable,
   type ColumnDef,
 } from "@tanstack/react-table";
+import Image from "next/image";
 import { Messenger, Phone } from "@prisma/client";
 import {
   Table,
@@ -105,6 +106,8 @@ export const HousesTable: FC<Props> = ({
       .map(makeIncludedHouseMessenger),
     cadastralNumber: "",
     yandexDiskLink: "",
+    layout: "",
+    gallery: [],
     isActive: true,
     createdAt: new Date(),
     updatedAt: new Date(),
@@ -411,6 +414,32 @@ export const HousesTable: FC<Props> = ({
             >
               {link}
             </a>
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: "layout",
+      header: "Планировка",
+    },
+    {
+      accessorKey: "gallery",
+      header: "Изображения",
+      cell: ({ row }) => {
+        const urls = row.original.gallery.slice(0, 3);
+
+        return (
+          <div className="flex gap-1 w-50">
+            {urls.map((url) => (
+              <Image
+                key={url}
+                src={url}
+                width={64}
+                height={64}
+                alt={`img-${url}`}
+                className="object-cover"
+              />
+            ))}
           </div>
         );
       },

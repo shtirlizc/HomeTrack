@@ -1,6 +1,7 @@
 "use client";
 
-import { FC, useState } from "react";
+import { ChangeEvent, FC, useRef, useState, useTransition } from "react";
+import Image from "next/image";
 import {
   DialogClose,
   DialogFooter,
@@ -36,7 +37,12 @@ import { MarkdownEditor } from "@/components/common/markdown-editor";
 import MultipleSelector from "@/components/ui/multi-select";
 import { IncludedHouse } from "@/app/actions/houses";
 
-import { makeIncludedHouseMessenger, makeIncludedHousePhone } from "./utils";
+import {
+  convertBlobUrlToFile,
+  makeIncludedHouseMessenger,
+  makeIncludedHousePhone,
+} from "./utils";
+import { uploadImage } from "@/app/lib/storage/client";
 
 const INIT_COORDS: Coordinates = [56.10962394067204, 54.62695042147847];
 
@@ -81,6 +87,41 @@ export const HouseForm: FC<Props> = ({
 }) => {
   const phoneOptions = phones.map(makeOptionItem);
   const messengerOptions = messengers.map(makeOptionItem);
+
+  const galleryRef = useRef<HTMLInputElement>(null);
+  const [galleryUrls, setGalleryUrls] = useState<string[]>([]);
+
+  const handleGalleryChange = (event: ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files) {
+      const filesArray = Array.from(event.target.files);
+      const newImageUrls = filesArray.map((file) => URL.createObjectURL(file));
+      setGalleryUrls((prev) => [...prev, ...newImageUrls]);
+    }
+  };
+  const [isGalleryPending, startGalleryTransition] = useTransition();
+  const handleUploadGallery = () => {
+    startGalleryTransition(async () => {
+      const urls: string[] = [];
+      for (const url of galleryUrls) {
+        const imageFile = await convertBlobUrlToFile(url);
+
+        const { imageUrl, error } = await uploadImage({
+          file: imageFile,
+          bucket: "gallery",
+        });
+
+        if (error) {
+          console.error(error);
+          return;
+        }
+
+        urls.push(imageUrl);
+      }
+
+      setState((prev) => ({ ...prev, gallery: urls }));
+      setGalleryUrls([]);
+    });
+  };
 
   const [state, setState] = useState<IncludedHouse>(house);
 
@@ -152,6 +193,7 @@ export const HouseForm: FC<Props> = ({
                 description: md,
               }));
             }}
+            isEditable
           />
         </div>
 
@@ -653,6 +695,47 @@ export const HouseForm: FC<Props> = ({
               );
             }}
           />
+        </div>
+
+        <div className="grid gap-3">
+          <Label>Фотографии</Label>
+          <Input
+            ref={galleryRef}
+            type="file"
+            multiple
+            hidden
+            onChange={handleGalleryChange}
+          />
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => galleryRef.current?.click()}
+            disabled={isGalleryPending}
+          >
+            Выбрать фотографии
+          </Button>
+          {galleryUrls.length > 0 && (
+            <div className="flex flex-wrap justify-center gap-2">
+              {galleryUrls.map((url) => (
+                <Image
+                  key={url}
+                  src={url}
+                  width={80}
+                  height={80}
+                  alt={`img-${url}`}
+                  className="object-cover"
+                />
+              ))}
+            </div>
+          )}
+          <Button
+            type="button"
+            onClick={handleUploadGallery}
+            disabled={galleryUrls.length === 0 || isGalleryPending}
+          >
+            {isGalleryPending && <Spinner />}
+            {isGalleryPending ? "Загрузка" : "Загрузить фотографии"}
+          </Button>
         </div>
       </div>
 
