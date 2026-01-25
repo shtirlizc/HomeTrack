@@ -90,7 +90,6 @@ export const HouseForm: FC<Props> = ({
 
   const galleryRef = useRef<HTMLInputElement>(null);
   const [galleryUrls, setGalleryUrls] = useState<string[]>([]);
-
   const handleGalleryChange = (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target.files) {
       const filesArray = Array.from(event.target.files);
@@ -120,6 +119,40 @@ export const HouseForm: FC<Props> = ({
 
       setState((prev) => ({ ...prev, gallery: urls }));
       setGalleryUrls([]);
+    });
+  };
+
+  const layoutRef = useRef<HTMLInputElement>(null);
+  const [layoutUrl, setLayoutUrl] = useState<string[]>([]);
+  const handleLayoutChange = (event: ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files) {
+      const filesArray = Array.from(event.target.files);
+      const newImageUrls = filesArray.map((file) => URL.createObjectURL(file));
+      setLayoutUrl(newImageUrls);
+    }
+  };
+  const [isLayoutPending, startLayoutTransition] = useTransition();
+  const handleUploadLayout = () => {
+    startLayoutTransition(async () => {
+      const urls: string[] = [];
+      for (const url of layoutUrl) {
+        const imageFile = await convertBlobUrlToFile(url);
+
+        const { imageUrl, error } = await uploadImage({
+          file: imageFile,
+          bucket: "gallery",
+        });
+
+        if (error) {
+          console.error(error);
+          return;
+        }
+
+        urls.push(imageUrl);
+      }
+
+      setState((prev) => ({ ...prev, layout: urls.at(0) ?? "" }));
+      setLayoutUrl([]);
     });
   };
 
@@ -735,6 +768,46 @@ export const HouseForm: FC<Props> = ({
           >
             {isGalleryPending && <Spinner />}
             {isGalleryPending ? "Загрузка" : "Загрузить фотографии"}
+          </Button>
+        </div>
+
+        <div className="grid gap-3">
+          <Label>Планировка</Label>
+          <Input
+            ref={layoutRef}
+            type="file"
+            hidden
+            onChange={handleLayoutChange}
+          />
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => layoutRef.current?.click()}
+            disabled={isLayoutPending}
+          >
+            Выбрать фотографию планировки
+          </Button>
+          {layoutUrl.length > 0 && (
+            <div className="flex flex-wrap justify-center gap-2">
+              {layoutUrl.map((url) => (
+                <Image
+                  key={url}
+                  src={url}
+                  width={80}
+                  height={80}
+                  alt={`img-${url}`}
+                  className="object-cover"
+                />
+              ))}
+            </div>
+          )}
+          <Button
+            type="button"
+            onClick={handleUploadLayout}
+            disabled={layoutUrl.length === 0 || isLayoutPending}
+          >
+            {isLayoutPending && <Spinner />}
+            {isLayoutPending ? "Загрузка" : "Загрузить планировку"}
           </Button>
         </div>
       </div>
