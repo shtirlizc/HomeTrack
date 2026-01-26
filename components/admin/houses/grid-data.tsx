@@ -49,6 +49,7 @@ import Link from "next/link";
 
 import { Dictionaries, HouseForm } from "./form";
 import {
+  formatNumber,
   getCommonPinningStyles,
   makeIncludedHouseMessenger,
   makeIncludedHousePhone,
@@ -110,6 +111,7 @@ export const HousesTable: FC<Props> = ({
     gallery: [],
     layout: "",
     isActive: true,
+    isArchive: false,
     createdAt: new Date(),
     updatedAt: new Date(),
   };
@@ -166,6 +168,9 @@ export const HousesTable: FC<Props> = ({
     {
       accessorKey: "humanCode",
       header: "Артикул",
+      cell: ({ row }) => {
+        return <div>{formatNumber(Number(row.original.humanCode))}</div>;
+      },
     },
     {
       accessorKey: "description",

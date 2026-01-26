@@ -54,3 +54,6 @@ export async function convertBlobUrlToFile(blobUrl: string) {
     type: mimeType,
   });
 }
+
+export const formatNumber = (value: number, length = 5) =>
+  String(value).padStart(length, "0");
