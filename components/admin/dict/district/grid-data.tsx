@@ -32,7 +32,11 @@ import { DistrictForm } from "./form";
 import { District, Prisma } from "@prisma/client";
 import DistrictCreateInput = Prisma.DistrictCreateInput;
 
-const defaultCreateState: DistrictCreateInput = { title: "", description: "" };
+const defaultCreateState: DistrictCreateInput = {
+  title: "",
+  description: "",
+  sortOrder: 99999,
+};
 const createInitialState = { error: "", success: false };
 const updateInitialState = { error: "", success: false };
 const deleteInitialState = { error: "" };
@@ -95,6 +99,10 @@ export const DistrictsTable: FC<Props> = ({ districts }) => {
     {
       accessorKey: "description",
       header: "Описание",
+    },
+    {
+      accessorKey: "sortOrder",
+      header: "Порядок",
     },
     {
       accessorKey: "_actions",

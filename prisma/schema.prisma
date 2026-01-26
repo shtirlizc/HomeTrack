@@ -13,6 +13,7 @@ model District {
   id          String   @id @default(uuid())
   title       String
   description String?
+  sortOrder   Int      @default(99999)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 

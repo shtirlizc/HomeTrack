@@ -80,6 +80,22 @@ export const DistrictForm: FC<Props> = ({
           />
         </div>
 
+        <div className="grid gap-3">
+          <Label>Порядок</Label>
+          <Input
+            type="number"
+            value={state.sortOrder}
+            onChange={(event) => {
+              setState(
+                (prev): DistrictCreateInput => ({
+                  ...prev,
+                  sortOrder: Number(event.target.value),
+                }),
+              );
+            }}
+          />
+        </div>
+
         {errorMessage && (
           <FieldDescription className="text-center text-red-500">
             {errorMessage}

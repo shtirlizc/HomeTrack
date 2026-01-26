@@ -8,7 +8,7 @@ import DistrictCreateInput = Prisma.DistrictCreateInput;
 export async function getDistricts() {
   try {
     const districts: District[] = await prisma.district.findMany({
-      orderBy: { createdAt: "asc" },
+      orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
     });
 
     return districts;
@@ -23,7 +23,7 @@ export async function createDistrict(
   prevData: any,
   request: DistrictCreateInput,
 ) {
-  const { title, description } = request;
+  const { title, description, sortOrder } = request;
 
   if (!title.trim()) {
     return { error: "Название обязательно" };
@@ -34,6 +34,7 @@ export async function createDistrict(
       data: {
         title,
         description,
+        sortOrder,
       },
     });
 
@@ -48,7 +49,7 @@ export async function updateDistrict(
   prevData: any,
   request: DistrictCreateInput,
 ) {
-  const { id, title, description } = request;
+  const { id, title, description, sortOrder } = request;
 
   if (!id) {
     return { error: "Идентификатор отсутствует" };
@@ -65,6 +66,7 @@ export async function updateDistrict(
       data: {
         title,
         description,
+        sortOrder,
       },
     });
 
