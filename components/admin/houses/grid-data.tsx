@@ -78,6 +78,8 @@ export const HousesTable: FC<Props> = ({
     name: "",
     description: "",
     districtId: "",
+    regionId: null,
+    developerId: "",
     type: HouseType.LandPlot,
     price: 0,
     houseArea: 0,
@@ -99,7 +101,6 @@ export const HousesTable: FC<Props> = ({
     saleStatus: SaleStatus.Available,
     latitude: 0,
     longitude: 0,
-    developerId: "",
     phones: phones
       .filter(({ isDefault }) => isDefault)
       .map(makeIncludedHousePhone),
@@ -214,6 +215,20 @@ export const HousesTable: FC<Props> = ({
           dictionaries.districts.find(
             ({ id }) => id === row.original.districtId,
           )?.title ?? "Район не найден"
+        );
+      },
+    },
+    {
+      accessorKey: "regionId",
+      header: "Регион",
+      cell: ({ row }) => {
+        if (!dictionaries?.regions) {
+          return row.original.regionId;
+        }
+
+        return (
+          dictionaries.regions.find(({ id }) => id === row.original.regionId)
+            ?.title ?? "Регион не выбран"
         );
       },
     },

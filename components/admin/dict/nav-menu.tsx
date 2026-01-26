@@ -13,6 +13,10 @@ const dictNav = [
     label: "Застройщики",
   },
   {
+    href: "region",
+    label: "Регионы",
+  },
+  {
     href: "messenger",
     label: "Мессенджеры",
   },

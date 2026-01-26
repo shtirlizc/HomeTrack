@@ -14,7 +14,7 @@ import { FieldDescription } from "@/components/ui/field";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import * as React from "react";
-import { Developer, District, Messenger, Phone } from "@prisma/client";
+import { Developer, District, Messenger, Phone, Region } from "@prisma/client";
 import { SelectField } from "@/components/admin/houses/select-field";
 import {
   BathroomCount,
@@ -55,6 +55,7 @@ const INIT_COORDS: Coordinates = [56.10962394067204, 54.62695042147847];
 export interface Dictionaries {
   districts: District[];
   developers: Developer[];
+  regions: Region[];
 }
 
 const ErrorMessage: FC<{ message?: string }> = ({ message }) => {
@@ -269,6 +270,30 @@ export const HouseForm: FC<Props> = ({
             error={(hasError && error?.fieldName === "districtId") || false}
           />
           {hasError && error?.fieldName === "districtId" && (
+            <ErrorMessage message={error.error} />
+          )}
+        </div>
+
+        <div className="grid gap-3">
+          <Label>Регион</Label>
+          <SelectField
+            list={
+              dictionaries.regions?.map(({ id, title }) => {
+                return { id, name: title };
+              }) ?? []
+            }
+            value={state?.regionId ?? ""}
+            onChange={(regionId: string) => {
+              setState(
+                (prev): IncludedHouse => ({
+                  ...prev,
+                  regionId,
+                }),
+              );
+            }}
+            error={(hasError && error?.fieldName === "regionId") || false}
+          />
+          {hasError && error?.fieldName === "regionId" && (
             <ErrorMessage message={error.error} />
           )}
         </div>

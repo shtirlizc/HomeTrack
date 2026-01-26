@@ -20,6 +20,16 @@ model District {
   House House[]
 }
 
+model Region {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  House House[]
+}
+
 model Developer {
   id        String   @id @default(uuid())
   title     String
@@ -195,6 +205,9 @@ model House {
 
   district   District @relation(fields: [districtId], references: [id])
   districtId String
+
+  region   Region? @relation(fields: [regionId], references: [id])
+  regionId String?
 
   developer   Developer @relation(fields: [developerId], references: [id])
   developerId String

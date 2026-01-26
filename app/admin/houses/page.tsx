@@ -3,6 +3,7 @@
 import { getHouses } from "@/app/actions/houses";
 import { HousesTable } from "@/components/admin/houses/grid-data";
 import { getDistricts } from "@/app/actions/districts";
+import { getRegions } from "@/app/actions/regions";
 import { getDevelopers } from "@/app/actions/developers";
 import { getPhones } from "@/app/actions/phone";
 import { getMessengers } from "@/app/actions/messenger";
@@ -10,6 +11,7 @@ import { getMessengers } from "@/app/actions/messenger";
 export default async function HousesPage() {
   const houses = (await getHouses()) ?? [];
   const districts = (await getDistricts()) ?? [];
+  const regions = (await getRegions()) ?? [];
   const developers = (await getDevelopers()) ?? [];
   const phones = (await getPhones()) ?? [];
   const messengers = (await getMessengers()) ?? [];
@@ -17,6 +19,7 @@ export default async function HousesPage() {
   const dictionaries = {
     districts,
     developers,
+    regions,
   };
 
   return (
