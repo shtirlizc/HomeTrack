@@ -188,6 +188,7 @@ model House {
   isActive        Boolean  @default(true)
   gallery         String[]
   layout          String?
+  isArchive       Boolean  @default(false)
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 

@@ -21,6 +21,10 @@ const data = {
       title: "Справочники",
       url: "/admin/dict",
     },
+    {
+      title: "Архив",
+      url: "#",
+    },
   ],
 };
 

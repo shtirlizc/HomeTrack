@@ -25,6 +25,9 @@ export async function getHouses(): Promise<IncludedHouse[] | null> {
   try {
     return prisma.house.findMany({
       orderBy: { createdAt: "asc" },
+      where: {
+        isArchive: false,
+      },
       include: {
         phones: {
           include: {
@@ -50,6 +53,7 @@ export async function getHouse(id: string): Promise<IncludedHouse | null> {
     return prisma.house.findUnique({
       where: {
         id,
+        isArchive: false,
       },
       include: {
         phones: {
@@ -187,10 +191,11 @@ export async function deleteHouse(prevData: any, id: string) {
   }
 
   try {
-    await prisma.house.delete({
+    await prisma.house.update({
       where: {
         id,
       },
+      data: { isArchive: true },
     });
 
     revalidatePath("/admin/houses");
