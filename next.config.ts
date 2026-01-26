@@ -3,14 +3,16 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
+      // develop
       {
         protocol: "https",
         hostname: "uvywuqzirlqcullegqlk.supabase.co",
         port: "",
       },
+      // production
       {
         protocol: "https",
-        hostname: "hdqfkvsfaszajfdmvcfi.supabase.co",
+        hostname: "vlgguavsjhygzpooojii.supabase.co",
         port: "",
       },
     ],
