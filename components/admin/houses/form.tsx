@@ -36,13 +36,19 @@ import { Coordinates, Map } from "@/components/common/map";
 import { MarkdownEditor } from "@/components/common/markdown-editor";
 import MultipleSelector from "@/components/ui/multi-select";
 import { IncludedHouse } from "@/app/actions/houses";
+import { uploadImage } from "@/app/lib/storage/client";
+import { XCircle, Check } from "lucide-react";
 
 import {
   convertBlobUrlToFile,
   makeIncludedHouseMessenger,
   makeIncludedHousePhone,
 } from "./utils";
-import { uploadImage } from "@/app/lib/storage/client";
+
+type ImageLoadedType = {
+  url: string;
+  isLoaded: boolean;
+};
 
 const INIT_COORDS: Coordinates = [56.10962394067204, 54.62695042147847];
 
@@ -88,6 +94,8 @@ export const HouseForm: FC<Props> = ({
   const phoneOptions = phones.map(makeOptionItem);
   const messengerOptions = messengers.map(makeOptionItem);
 
+  const [state, setState] = useState<IncludedHouse>(house);
+
   const galleryRef = useRef<HTMLInputElement>(null);
   const [galleryUrls, setGalleryUrls] = useState<string[]>([]);
   const handleGalleryChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -123,40 +131,39 @@ export const HouseForm: FC<Props> = ({
   };
 
   const layoutRef = useRef<HTMLInputElement>(null);
-  const [layoutUrl, setLayoutUrl] = useState<string[]>([]);
+  const [layoutUrl, setLayoutUrl] = useState<ImageLoadedType>({
+    url: state.layout ?? "",
+    isLoaded: true,
+  });
   const handleLayoutChange = (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target.files) {
       const filesArray = Array.from(event.target.files);
       const newImageUrls = filesArray.map((file) => URL.createObjectURL(file));
-      setLayoutUrl(newImageUrls);
+      setLayoutUrl({ url: newImageUrls.at(0) ?? "", isLoaded: false });
     }
   };
   const [isLayoutPending, startLayoutTransition] = useTransition();
   const handleUploadLayout = () => {
     startLayoutTransition(async () => {
-      const urls: string[] = [];
-      for (const url of layoutUrl) {
-        const imageFile = await convertBlobUrlToFile(url);
+      let savedUrl: string = "";
+      const imageFile = await convertBlobUrlToFile(layoutUrl.url);
 
-        const { imageUrl, error } = await uploadImage({
-          file: imageFile,
-          bucket: "gallery",
-        });
+      const { imageUrl, error } = await uploadImage({
+        file: imageFile,
+        bucket: "gallery",
+      });
 
-        if (error) {
-          console.error(error);
-          return;
-        }
-
-        urls.push(imageUrl);
+      if (error) {
+        console.error(error);
+        return;
       }
 
-      setState((prev) => ({ ...prev, layout: urls.at(0) ?? "" }));
-      setLayoutUrl([]);
+      savedUrl = imageUrl;
+
+      setState((prev) => ({ ...prev, layout: savedUrl }));
+      setLayoutUrl((prev) => ({ ...prev, isLoaded: true }));
     });
   };
-
-  const [state, setState] = useState<IncludedHouse>(house);
 
   const startCoords: Coordinates =
     !state.latitude && !state.longitude
@@ -756,7 +763,7 @@ export const HouseForm: FC<Props> = ({
                   width={80}
                   height={80}
                   alt={`img-${url}`}
-                  className="object-cover"
+                  className="object-cover rounded-md"
                 />
               ))}
             </div>
@@ -773,42 +780,54 @@ export const HouseForm: FC<Props> = ({
 
         <div className="grid gap-3">
           <Label>Планировка</Label>
-          <Input
-            ref={layoutRef}
-            type="file"
-            hidden
-            onChange={handleLayoutChange}
-          />
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => layoutRef.current?.click()}
-            disabled={isLayoutPending}
-          >
-            Выбрать фотографию планировки
-          </Button>
-          {layoutUrl.length > 0 && (
+          <div className="grid grid-cols-2 gap-2">
+            <Input
+              ref={layoutRef}
+              type="file"
+              hidden
+              onChange={handleLayoutChange}
+            />
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => layoutRef.current?.click()}
+              disabled={isLayoutPending}
+            >
+              Выбрать планировку
+            </Button>
+            <Button
+              type="button"
+              onClick={handleUploadLayout}
+              disabled={!layoutUrl.url || isLayoutPending}
+            >
+              {isLayoutPending && <Spinner />}
+              {isLayoutPending ? "Загрузка" : "Загрузить планировку"}
+            </Button>
+          </div>
+
+          {layoutUrl.url && (
             <div className="flex flex-wrap justify-center gap-2">
-              {layoutUrl.map((url) => (
-                <Image
-                  key={url}
-                  src={url}
-                  width={80}
-                  height={80}
-                  alt={`img-${url}`}
-                  className="object-cover"
+              <Image
+                key={layoutUrl.url}
+                src={layoutUrl.url}
+                width={80}
+                height={80}
+                alt={`img-${layoutUrl.url}`}
+                className="object-cover rounded-md"
+              />
+              <div className="flex flex-col gap-1">
+                <XCircle
+                  className="h-[1.2rem] w-[1.2rem] cursor-pointer hover:text-primary transition-text duration-200"
+                  onClick={() => {
+                    setLayoutUrl({ url: "", isLoaded: false });
+                  }}
                 />
-              ))}
+                {layoutUrl.isLoaded && (
+                  <Check className="h-[1.2rem] w-[1.2rem] text-green-500" />
+                )}
+              </div>
             </div>
           )}
-          <Button
-            type="button"
-            onClick={handleUploadLayout}
-            disabled={layoutUrl.length === 0 || isLayoutPending}
-          >
-            {isLayoutPending && <Spinner />}
-            {isLayoutPending ? "Загрузка" : "Загрузить планировку"}
-          </Button>
         </div>
       </div>
 

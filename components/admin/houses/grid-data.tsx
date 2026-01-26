@@ -438,7 +438,7 @@ export const HousesTable: FC<Props> = ({
                 width={64}
                 height={64}
                 alt={`img-${url}`}
-                className="object-cover"
+                className="object-cover rounded-sm"
               />
             ))}
           </div>
@@ -463,7 +463,7 @@ export const HousesTable: FC<Props> = ({
               width={64}
               height={64}
               alt={`img-${url}`}
-              className="object-cover"
+              className="object-cover rounded-sm"
             />
           </div>
         );
