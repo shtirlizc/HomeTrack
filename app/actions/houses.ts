@@ -288,8 +288,7 @@ function validateHouse(house: HouseUncheckedCreateInput) {
   return null;
 }
 
-const generateCode = () =>
-  `${customAlphabet("ABCDEFGHJKLMNPQRSTUVWXYZ23456789", 4)()}-${customAlphabet("ABCDEFGHJKLMNPQRSTUVWXYZ23456789", 4)()}`;
+const generateCode = customAlphabet("0123456789", 10);
 
 function isUniqueConstraintError(
   e: unknown,
