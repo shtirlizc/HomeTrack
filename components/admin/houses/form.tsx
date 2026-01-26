@@ -97,20 +97,30 @@ export const HouseForm: FC<Props> = ({
   const [state, setState] = useState<IncludedHouse>(house);
 
   const galleryRef = useRef<HTMLInputElement>(null);
-  const [galleryUrls, setGalleryUrls] = useState<string[]>([]);
+  const [galleryUrls, setGalleryUrls] = useState<ImageLoadedType[]>(
+    state.gallery.map((url) => ({ url, isLoaded: true })),
+  );
   const handleGalleryChange = (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target.files) {
       const filesArray = Array.from(event.target.files);
       const newImageUrls = filesArray.map((file) => URL.createObjectURL(file));
-      setGalleryUrls((prev) => [...prev, ...newImageUrls]);
+      setGalleryUrls((prev) => [
+        ...prev,
+        ...newImageUrls.map((url) => ({ url, isLoaded: false })),
+      ]);
     }
   };
   const [isGalleryPending, startGalleryTransition] = useTransition();
   const handleUploadGallery = () => {
     startGalleryTransition(async () => {
       const urls: string[] = [];
-      for (const url of galleryUrls) {
-        const imageFile = await convertBlobUrlToFile(url);
+      for (const img of galleryUrls) {
+        if (img.isLoaded) {
+          urls.push(img.url);
+          continue;
+        }
+
+        const imageFile = await convertBlobUrlToFile(img.url);
 
         const { imageUrl, error } = await uploadImage({
           file: imageFile,
@@ -126,7 +136,7 @@ export const HouseForm: FC<Props> = ({
       }
 
       setState((prev) => ({ ...prev, gallery: urls }));
-      setGalleryUrls([]);
+      setGalleryUrls(urls.map((url) => ({ url, isLoaded: true })));
     });
   };
 
@@ -145,7 +155,11 @@ export const HouseForm: FC<Props> = ({
   const [isLayoutPending, startLayoutTransition] = useTransition();
   const handleUploadLayout = () => {
     startLayoutTransition(async () => {
-      let savedUrl: string = "";
+      if (layoutUrl.isLoaded) {
+        setState((prev) => ({ ...prev, layout: layoutUrl.url }));
+        return;
+      }
+
       const imageFile = await convertBlobUrlToFile(layoutUrl.url);
 
       const { imageUrl, error } = await uploadImage({
@@ -158,9 +172,7 @@ export const HouseForm: FC<Props> = ({
         return;
       }
 
-      savedUrl = imageUrl;
-
-      setState((prev) => ({ ...prev, layout: savedUrl }));
+      setState((prev) => ({ ...prev, layout: imageUrl }));
       setLayoutUrl((prev) => ({ ...prev, isLoaded: true }));
     });
   };
@@ -739,43 +751,69 @@ export const HouseForm: FC<Props> = ({
 
         <div className="grid gap-3">
           <Label>Фотографии</Label>
-          <Input
-            ref={galleryRef}
-            type="file"
-            multiple
-            hidden
-            onChange={handleGalleryChange}
-          />
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => galleryRef.current?.click()}
-            disabled={isGalleryPending}
-          >
-            Выбрать фотографии
-          </Button>
+          <div className="grid grid-cols-2 gap-2">
+            <Input
+              ref={galleryRef}
+              type="file"
+              multiple
+              hidden
+              onChange={handleGalleryChange}
+            />
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => galleryRef.current?.click()}
+              disabled={isGalleryPending}
+            >
+              Выбрать фотографии
+            </Button>
+            <Button
+              type="button"
+              onClick={handleUploadGallery}
+              disabled={galleryUrls.length === 0 || isGalleryPending}
+            >
+              {isGalleryPending && <Spinner />}
+              {isGalleryPending ? "Загрузка" : "Загрузить фотографии"}
+            </Button>
+          </div>
+
           {galleryUrls.length > 0 && (
             <div className="flex flex-wrap justify-center gap-2">
-              {galleryUrls.map((url) => (
-                <Image
-                  key={url}
-                  src={url}
-                  width={80}
-                  height={80}
-                  alt={`img-${url}`}
-                  className="object-cover rounded-md"
-                />
+              {galleryUrls.map((img) => (
+                <div
+                  key={img.url}
+                  className="flex flex-wrap justify-center gap-1"
+                >
+                  <Image
+                    src={img.url}
+                    width={80}
+                    height={80}
+                    alt={`img-${img.url}`}
+                    className="object-cover rounded-md"
+                  />
+                  <div className="flex flex-col gap-1">
+                    <XCircle
+                      className="h-[1.2rem] w-[1.2rem] cursor-pointer hover:text-red transition-text duration-200"
+                      onClick={() => {
+                        const filteredUrls = galleryUrls.filter(
+                          ({ url }) => url !== img.url,
+                        );
+
+                        setGalleryUrls(filteredUrls);
+                        setState((prev) => ({
+                          ...prev,
+                          gallery: filteredUrls.map(({ url }) => url),
+                        }));
+                      }}
+                    />
+                    {img.isLoaded && (
+                      <Check className="h-[1.2rem] w-[1.2rem] text-green-500" />
+                    )}
+                  </div>
+                </div>
               ))}
             </div>
           )}
-          <Button
-            type="button"
-            onClick={handleUploadGallery}
-            disabled={galleryUrls.length === 0 || isGalleryPending}
-          >
-            {isGalleryPending && <Spinner />}
-            {isGalleryPending ? "Загрузка" : "Загрузить фотографии"}
-          </Button>
         </div>
 
         <div className="grid gap-3">
@@ -806,7 +844,7 @@ export const HouseForm: FC<Props> = ({
           </div>
 
           {layoutUrl.url && (
-            <div className="flex flex-wrap justify-center gap-2">
+            <div className="flex flex-wrap justify-center gap-1">
               <Image
                 key={layoutUrl.url}
                 src={layoutUrl.url}
@@ -820,6 +858,7 @@ export const HouseForm: FC<Props> = ({
                   className="h-[1.2rem] w-[1.2rem] cursor-pointer hover:text-primary transition-text duration-200"
                   onClick={() => {
                     setLayoutUrl({ url: "", isLoaded: false });
+                    setState((prev) => ({ ...prev, layout: "" }));
                   }}
                 />
                 {layoutUrl.isLoaded && (
