@@ -200,3 +200,8 @@ model House {
   messengers HouseMessenger[]
   phones     HousePhone[]
 }
+
+model Counter {
+  name  String @id
+  value Int
+}

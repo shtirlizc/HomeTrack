@@ -1,6 +1,5 @@
 "use server";
 
-import { customAlphabet } from "nanoid";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { InputJsonValue } from "@prisma/client/runtime/edge";
@@ -88,39 +87,35 @@ export async function createHouse(prevData: any, request: IncludedHouse) {
     return validateMessage;
   }
 
-  while (true) {
-    const code = generateCode();
+  try {
+    await prisma.$transaction(async (tx) => {
+      const counter = await tx.counter.update({
+        where: { name: "house" },
+        data: { value: { increment: 1 } },
+      });
 
-    try {
-      await prisma.house.create({
+      await tx.house.create({
         data: {
           ...data,
-          humanCode: code,
+          humanCode: counter.value.toString(),
           phones: {
             create: phoneIds.map((phoneId) => ({
-              phone: {
-                connect: { id: phoneId },
-              },
+              phone: { connect: { id: phoneId } },
             })),
           },
           messengers: {
             create: messengerIds.map((messengerId) => ({
-              messenger: {
-                connect: { id: messengerId },
-              },
+              messenger: { connect: { id: messengerId } },
             })),
           },
         },
       });
+    });
 
-      revalidatePath("/admin/houses");
-      return { success: true };
-    } catch (error: any) {
-      if (isUniqueConstraintError(error)) {
-        continue;
-      }
-      return error?.message ?? "Неизвестная ошибка";
-    }
+    revalidatePath("/admin/houses");
+    return { success: true };
+  } catch (error: any) {
+    return error?.message ?? "Неизвестная ошибка";
   }
 }
 
@@ -286,17 +281,4 @@ function validateHouse(house: HouseUncheckedCreateInput) {
   }
 
   return null;
-}
-
-const generateCode = customAlphabet("0123456789", 10);
-
-function isUniqueConstraintError(
-  e: unknown,
-): e is Prisma.PrismaClientKnownRequestError {
-  return (
-    e instanceof Prisma.PrismaClientKnownRequestError &&
-    e.code === "P2002" &&
-    Array.isArray(e.meta?.target) &&
-    e.meta.target.includes("humanCode")
-  );
 }
