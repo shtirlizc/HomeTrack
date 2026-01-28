@@ -577,7 +577,12 @@ export const HousesTable: FC<Props> = ({
         </FieldDescription>
       )}
 
-      <div className="overflow-hidden rounded-md border">
+      <div
+        className="overflow-y-scroll rounded-md border"
+        style={{
+          maxHeight: "calc(100vh - 140px)",
+        }}
+      >
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
