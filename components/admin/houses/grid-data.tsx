@@ -110,6 +110,7 @@ export const HousesTable: FC<Props> = ({
     cadastralNumber: "",
     yandexDiskLink: "",
     gallery: [],
+    plan: [],
     layout: "",
     isActive: true,
     isArchive: false,
@@ -466,25 +467,23 @@ export const HousesTable: FC<Props> = ({
       },
     },
     {
-      accessorKey: "layout",
+      accessorKey: "plan",
       header: "Планировка",
       cell: ({ row }) => {
-        const url = row.original.layout;
-
-        if (!url) {
-          return null;
-        }
+        const urls = row.original.plan.slice(0, 3);
 
         return (
-          <div className="flex gap-1 w-16">
-            <Image
-              key={url}
-              src={url}
-              width={64}
-              height={64}
-              alt={`img-${url}`}
-              className="object-cover rounded-sm"
-            />
+          <div className="flex gap-1 w-50">
+            {urls.map((url) => (
+              <Image
+                key={url}
+                src={url}
+                width={64}
+                height={64}
+                alt={`img-${url}`}
+                className="object-cover rounded-sm"
+              />
+            ))}
           </div>
         );
       },

@@ -141,40 +141,47 @@ export const HouseForm: FC<Props> = ({
     });
   };
 
-  const layoutRef = useRef<HTMLInputElement>(null);
-  const [layoutUrl, setLayoutUrl] = useState<ImageLoadedType>({
-    url: state.layout ?? "",
-    isLoaded: true,
-  });
-  const handleLayoutChange = (event: ChangeEvent<HTMLInputElement>) => {
+  const planRef = useRef<HTMLInputElement>(null);
+  const [planUrls, setPlanUrls] = useState<ImageLoadedType[]>(
+    state.plan.map((url) => ({ url, isLoaded: true })),
+  );
+  const handlePlanChange = (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target.files) {
       const filesArray = Array.from(event.target.files);
       const newImageUrls = filesArray.map((file) => URL.createObjectURL(file));
-      setLayoutUrl({ url: newImageUrls.at(0) ?? "", isLoaded: false });
+      setPlanUrls((prev) => [
+        ...prev,
+        ...newImageUrls.map((url) => ({ url, isLoaded: false })),
+      ]);
     }
   };
-  const [isLayoutPending, startLayoutTransition] = useTransition();
-  const handleUploadLayout = () => {
-    startLayoutTransition(async () => {
-      if (layoutUrl.isLoaded) {
-        setState((prev) => ({ ...prev, layout: layoutUrl.url }));
-        return;
+  const [isPlanPending, startPlanTransition] = useTransition();
+  const handleUploadPlan = () => {
+    startPlanTransition(async () => {
+      const urls: string[] = [];
+      for (const img of planUrls) {
+        if (img.isLoaded) {
+          urls.push(img.url);
+          continue;
+        }
+
+        const imageFile = await convertBlobUrlToFile(img.url);
+
+        const { imageUrl, error } = await uploadImage({
+          file: imageFile,
+          bucket: "gallery",
+        });
+
+        if (error) {
+          console.error(error);
+          return;
+        }
+
+        urls.push(imageUrl);
       }
 
-      const imageFile = await convertBlobUrlToFile(layoutUrl.url);
-
-      const { imageUrl, error } = await uploadImage({
-        file: imageFile,
-        bucket: "gallery",
-      });
-
-      if (error) {
-        console.error(error);
-        return;
-      }
-
-      setState((prev) => ({ ...prev, layout: imageUrl }));
-      setLayoutUrl((prev) => ({ ...prev, isLoaded: true }));
+      setState((prev) => ({ ...prev, plan: urls }));
+      setPlanUrls(urls.map((url) => ({ url, isLoaded: true })));
     });
   };
 
@@ -845,53 +852,66 @@ export const HouseForm: FC<Props> = ({
           <Label>Планировка</Label>
           <div className="grid grid-cols-2 gap-2">
             <Input
-              ref={layoutRef}
+              ref={planRef}
               type="file"
+              multiple
               hidden
-              onChange={handleLayoutChange}
+              onChange={handlePlanChange}
             />
             <Button
               type="button"
               variant="outline"
-              onClick={() => layoutRef.current?.click()}
-              disabled={isLayoutPending}
+              onClick={() => planRef.current?.click()}
+              disabled={isPlanPending}
             >
               Выбрать планировку
             </Button>
             <Button
               type="button"
-              onClick={handleUploadLayout}
-              disabled={!layoutUrl.url || isLayoutPending}
+              onClick={handleUploadPlan}
+              disabled={planUrls.length === 0 || isPlanPending}
             >
-              {isLayoutPending && <Spinner />}
-              {isLayoutPending ? "Загрузка" : "Загрузить планировку"}
+              {isPlanPending && <Spinner />}
+              {isPlanPending ? "Загрузка" : "Загрузить планировку"}
             </Button>
           </div>
 
-          {layoutUrl.url && (
-            <div className="flex flex-wrap justify-center gap-1">
-              <Image
-                key={layoutUrl.url}
-                src={layoutUrl.url}
-                width={80}
-                height={80}
-                alt={`img-${layoutUrl.url}`}
-                className="object-cover rounded-md"
-              />
-              <div className="flex flex-col gap-1">
-                <XCircle
-                  className="h-[1.2rem] w-[1.2rem] cursor-pointer hover:text-primary transition-text duration-200"
-                  onClick={() => {
-                    setLayoutUrl({ url: "", isLoaded: false });
-                    setState((prev) => ({ ...prev, layout: "" }));
-                  }}
-                />
-                {layoutUrl.isLoaded && (
-                  <Check className="h-[1.2rem] w-[1.2rem] text-green-500" />
-                )}
-              </div>
-            </div>
-          )}
+          <div className="flex flex-wrap justify-center gap-2">
+            {planUrls.length > 0 &&
+              planUrls.map((plan) => (
+                <div
+                  key={plan.url}
+                  className="flex flex-wrap justify-center gap-1"
+                >
+                  <Image
+                    src={plan.url}
+                    width={80}
+                    height={80}
+                    alt={`img-${plan.url}`}
+                    className="object-cover rounded-md"
+                  />
+                  <div className="flex flex-col gap-1">
+                    <XCircle
+                      className="h-[1.2rem] w-[1.2rem] cursor-pointer hover:text-primary transition-text duration-200"
+                      onClick={() => {
+                        const filteredUrls = planUrls.filter(
+                          ({ url }) => url !== plan.url,
+                        );
+
+                        setPlanUrls(filteredUrls);
+                        setState((prev) => ({
+                          ...prev,
+                          plan: filteredUrls.map(({ url }) => url),
+                        }));
+                      }}
+                    />
+                    {plan.isLoaded && (
+                      <Check className="h-[1.2rem] w-[1.2rem] text-green-500" />
+                    )}
+                  </div>
+                </div>
+              ))}
+          </div>
         </div>
       </div>
 
