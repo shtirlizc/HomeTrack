@@ -96,7 +96,7 @@ export const HousesTable: FC<Props> = ({
     facingMaterial: FacingMaterial.BarkBeetlePlaster,
     wallMaterial: WallMaterial.Wood,
     insulation: Insulation.FoamPlastic,
-    hasMinimumDownPayment: true,
+    hasMinimumDownPayment: false,
     houseStatus: HouseStatus.BuiltHouse,
     saleStatus: SaleStatus.Available,
     latitude: 0,
