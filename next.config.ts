@@ -13,7 +13,7 @@ const nextConfig: NextConfig = {
         port: "",
       },
       {
-        protocol: "https",
+        protocol: "http",
         hostname: prodImagePrefix,
         port: "",
       },
