@@ -1,18 +1,20 @@
 import type { NextConfig } from "next";
+import { env } from "prisma/config";
+
+const devImagePrefix = env("DEV_IMAGE_PREFIX");
+const prodImagePrefix = env("PROD_IMAGE_PREFIX");
 
 const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
-      // develop
       {
         protocol: "https",
-        hostname: "uvywuqzirlqcullegqlk.supabase.co",
+        hostname: devImagePrefix,
         port: "",
       },
-      // production
       {
         protocol: "https",
-        hostname: "vlgguavsjhygzpooojii.supabase.co",
+        hostname: prodImagePrefix,
         port: "",
       },
     ],
