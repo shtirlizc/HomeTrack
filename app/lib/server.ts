@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 import { env } from "prisma/config";
 
 const supabaseUrl = env("NEXT_PUBLIC_SUPABASE_URL");
-const supabaseKey = env("NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY");
+const supabaseKey = env("NEXT_PUBLIC_SUPABASE_SECRET_KEY");
 
 export const createClient = async () => {
   const cookieStore = await cookies();
